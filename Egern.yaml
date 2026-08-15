@@ -1,0 +1,338 @@
+ipv6: false
+vif_only: true
+geoip_db_url: https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb
+asn_db_url: https://raw.githubusercontent.com/Loyalsoldier/geoip/release/GeoLite2-ASN.mmdb
+proxy_latency_test_url: http://cp.cloudflare.com/generate_204
+direct_latency_test_url: http://taobao.com/
+dns:
+  bootstrap:
+  - 233.5.5.5
+  - 119.29.29.29
+  upstreams:
+    EncryptedDNS:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+  forward:
+  - domain_wildcard:
+      match: '*'
+      value: EncryptedDNS
+      disabled: false
+  public_ip_lookup_url: https://ifconfig.me/ip
+policy_groups:
+- external:
+    name: Manual
+    type: select
+    urls:
+    - https://liangxin.xyz/api/v1/liangxin?OwO=61fd15df636d7563133c53ade5642258
+    filter: ^
+    update_interval: 86400
+    icon: https://fastly.jsdelivr.net/gh/shindgewongxj/WHATSINStash@master/icon/select.png
+    hidden: false
+- select:
+    name: Apple
+    policies:
+    - DIRECT
+    - REJECT
+    - Manual
+    - Auto
+    - HongKong
+    - Taiwan
+    - Japan
+    - Korea
+    - Singapore
+    - UnitedStates
+    flatten: false
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple_2.png
+    hidden: false
+- select:
+    name: BiliBili
+    policies:
+    - DIRECT
+    - Manual
+    - Auto
+    - REJECT
+    - HongKong
+    - Taiwan
+    - Japan
+    - Korea
+    - Singapore
+    - UnitedStates
+    flatten: false
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/bilibili_3.png
+    hidden: false
+- select:
+    name: ChinaMedia
+    policies:
+    - DIRECT
+    - REJECT
+    - Manual
+    - Auto
+    - HongKong
+    - Taiwan
+    - Japan
+    - Korea
+    - Singapore
+    - UnitedStates
+    flatten: false
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/DomesticMedia.png
+    hidden: false
+- select:
+    name: GlobalMedia
+    policies:
+    - Manual
+    - Auto
+    - DIRECT
+    - REJECT
+    - HongKong
+    - Taiwan
+    - Japan
+    - Korea
+    - Singapore
+    - UnitedStates
+    flatten: false
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ForeignMedia.png
+    hidden: false
+- select:
+    name: Spotify
+    policies:
+    - Manual
+    - Auto
+    - DIRECT
+    - REJECT
+    - HongKong
+    - Taiwan
+    - Japan
+    - Korea
+    - Singapore
+    - UnitedStates
+    flatten: false
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Spotify.png
+    hidden: false
+- select:
+    name: TikTok
+    policies:
+    - Manual
+    - Auto
+    - DIRECT
+    - REJECT
+    - HongKong
+    - Taiwan
+    - Japan
+    - Korea
+    - Singapore
+    - UnitedStates
+    flatten: false
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/TikTok_1.png
+    hidden: false
+- select:
+    name: Emby
+    policies:
+    - DIRECT
+    - Manual
+    - Auto
+    - REJECT
+    - HongKong
+    - Taiwan
+    - Japan
+    - Korea
+    - Singapore
+    - UnitedStates
+    flatten: false
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Emby.png
+    hidden: false
+- select:
+    name: GlobalSites
+    policies:
+    - Manual
+    - Auto
+    - DIRECT
+    - REJECT
+    - HongKong
+    - Taiwan
+    - Japan
+    - Korea
+    - Singapore
+    - UnitedStates
+    flatten: false
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png
+    hidden: false
+- select:
+    name: Final
+    policies:
+    - Manual
+    - Auto
+    - DIRECT
+    - REJECT
+    - HongKong
+    - Taiwan
+    - Japan
+    - Korea
+    - Singapore
+    - UnitedStates
+    flatten: false
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png
+    hidden: false
+- auto_test:
+    name: Auto
+    policies:
+    - Manual
+    flatten: true
+    filter: ^
+    interval: 1800
+    tolerance: 50
+    timeout: 5
+    icon: https://fastly.jsdelivr.net/gh/Orz-3/mini@master/Color/Roundrobin.png
+    hidden: false
+- smart:
+    name: HongKong
+    policies:
+    - Manual
+    flatten: true
+    filter: 香港|港|HK|🇭🇰|(?i)Hong
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/HK.png
+    hidden: true
+- smart:
+    name: Taiwan
+    policies:
+    - Manual
+    flatten: true
+    filter: 台湾|台|TW|🇹🇼|(?i)Taiwan
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/TW.png
+    hidden: true
+- smart:
+    name: Japan
+    policies:
+    - Manual
+    flatten: true
+    filter: 日本|日|JP|🇯🇵|(?i)Japan
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/JP.png
+    hidden: true
+- smart:
+    name: Korea
+    policies:
+    - Manual
+    flatten: true
+    filter: 韩国|韩|KR|🇰🇷|(?i)Korea
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/KR.png
+    hidden: true
+- smart:
+    name: Singapore
+    policies:
+    - Manual
+    flatten: true
+    filter: 新加坡|狮|SG|🇸🇬|(?i)Singapore
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/SG.png
+    hidden: true
+- smart:
+    name: UnitedStates
+    policies:
+    - Manual
+    flatten: true
+    filter: 美国|美|US|🇺🇸|(?i)States
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/US.png
+    hidden: true
+rules:
+- rule_set:
+    name: 规则修正
+    match: https://raw.githubusercontent.com/Centralmatrix3/Matrix-io/master/Egern/Ruleset/Unbreak.yaml
+    policy: DIRECT
+    update_interval: 86400
+    disabled: false
+- rule_set:
+    name: AdBlock
+    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Advertising/Advertising.yaml
+    policy: REJECT
+    update_interval: 86400
+    disabled: false
+- rule_set:
+    name: Spotify
+    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Spotify/Spotify.yaml
+    policy: Spotify
+    update_interval: 86400
+    disabled: false
+- rule_set:
+    name: TikTok
+    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/TikTok/TikTok.yaml
+    policy: TikTok
+    update_interval: 86400
+    disabled: false
+- rule_set:
+    name: Emby
+    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Emby/Emby.yaml
+    policy: Emby
+    update_interval: 86400
+    disabled: false
+- rule_set:
+    name: BiliBili
+    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/BiliBili/BiliBili.yaml
+    policy: BiliBili
+    update_interval: 86400
+    disabled: false
+- rule_set:
+    name: ChinaMedia
+    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMedia/ChinaMedia.yaml
+    policy: ChinaMedia
+    update_interval: 86400
+    disabled: false
+- rule_set:
+    name: GlobalMedia
+    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GlobalMedia/GlobalMedia.yaml
+    policy: GlobalMedia
+    update_interval: 86400
+    disabled: false
+- rule_set:
+    name: GlobalSites
+    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ProxyLite/ProxyLite.yaml
+    policy: GlobalSites
+    update_interval: 86400
+    disabled: false
+- rule_set:
+    name: Apple
+    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.yaml
+    policy: Apple
+    update_interval: 86400
+    disabled: false
+- rule_set:
+    name: LAN
+    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Lan/Lan.yaml
+    policy: DIRECT
+    update_interval: 86400
+    disabled: false
+- rule_set:
+    name: ChinaSites
+    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/China/China.yaml
+    policy: DIRECT
+    update_interval: 86400
+    disabled: false
+- default:
+    name: Final
+    policy: Final
+mitm:
+  ca_p12: egern.p12
+  ca_passphrase: egern
+  hostnames:
+    includes:
+    - raw.githubusercontent.com
+    - gist.githubusercontent.com
+    - github.com
+  hostnames_disabled:
+    includes:
+    - raw.githubusercontent.com
+    - gist.githubusercontent.com
+    - github.com
+modules:
+- name: 微博去广告&净化
+  url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/weibo.module
+  enabled: true
+- name: 广告拦截&净化合集
+  url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/blockAds.module
+  enabled: true
+- name: 'Script Hub: 重写 & 规则集转换'
+  url: https://raw.githubusercontent.com/Script-Hub-Org/Script-Hub/refs/heads/main/modules/script-hub.beta.egern.yaml
+  enabled: true
+- name: Sub-Store
+  url: https://raw.githubusercontent.com/sub-store-org/Sub-Store/refs/heads/master/config/Egern.yaml
+  enabled: true
+- name: BoxJs
+  url: https://raw.githubusercontent.com/chavyleung/scripts/master/box/rewrite/boxjs.rewrite.surge.sgmodule
+  enabled: true
