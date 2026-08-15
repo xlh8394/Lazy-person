@@ -509,8 +509,6 @@ rules:
   - DOMAIN-SUFFIX,gwdang.com,DIRECT
   - DOMAIN-SUFFIX,cloudflare.com,Global-Media
   - DOMAIN-SUFFIX,freedom.gov,Global-Media
-  - DOMAIN,tv.xiaomo99.dpdns.org,DIRECT
-  - IP-CIDR,2602:294:0:b7:1234:1234:26bc:1/128,DIRECT
   - RULE-SET,Unbreak,DIRECT
   - RULE-SET,AdBlock,REJECT
   - RULE-SET,AI,AI
