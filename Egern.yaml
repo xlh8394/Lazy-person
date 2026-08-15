@@ -23,7 +23,7 @@ policy_groups:
     name: Manual
     type: select
     urls:
-    - https://liangxin.xyz/api/v1/liangxin?OwO=61fd15df636d7563133c53ade5642258
+    - Your subscription
     filter: ^
     update_interval: 86400
     icon: https://fastly.jsdelivr.net/gh/shindgewongxj/WHATSINStash@master/icon/select.png
