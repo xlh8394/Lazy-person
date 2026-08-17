@@ -321,11 +321,59 @@ mitm:
     - gist.githubusercontent.com
     - github.com
 modules:
+- name: Spotify(>=iOS15)
+  url: https://raw.githubusercontent.com/app2smile/rules/master/plugin/spotify.plugin
+  enabled: true
+- name: YouTube
+  url: https://raw.githubusercontent.com/fmz200/wool_scripts/main/Surge/module/split/partY/YouTube.sgmodule
+  enabled: true
+- name: 山姆会员商店
+  url: https://raw.githubusercontent.com/fmz200/wool_scripts/main/Surge/module/split/partS/SamClub.sgmodule
+  enabled: true
+- name: 拼多多
+  url: https://raw.githubusercontent.com/fmz200/wool_scripts/main/Surge/module/split/partP/Pinduoduo.sgmodule
+  enabled: true
+- name: 闲鱼
+  url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/split/partX/XianYu.sgmodule
+  enabled: true
+- name: 淘宝
+  url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/split/partT/Taobao.sgmodule
+  enabled: true
+- name: 京东
+  url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/split/partJ/JD.com.sgmodule
+  enabled: true
+- name: 高德地图
+  url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/split/partG/AutoNavi.sgmodule
+  enabled: true
+- name: 12306
+  url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/split/part1/12306.sgmodule
+  enabled: true
+- name: 12123
+  url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/split/part1/12123.sgmodule
+  enabled: true
+- name: 哔哩哔哩
+  url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/split/partB/bilibili.sgmodule
+  enabled: true
+- name: 🎵 Spotify
+  url: https://github.com/DualSubs/Spotify/releases/latest/download/DualSubs.Spotify.plugin
+  enabled: true
+- name: ▶️ YouTube (Music)
+  url: https://github.com/DualSubs/YouTube/releases/latest/download/DualSubs.YouTube.plugin
+  enabled: true
+- name: 📍 定位服务
+  url: https://github.com/NSRingo/LocationService/releases/latest/download/iRingo.LocationService.sgmodule
+  enabled: true
+- name: 🗺 MapKit
+  url: https://github.com/NSRingo/MapKit/releases/latest/download/iRingo.Maps.sgmodule
+  enabled: true
+- name: iRingo: 🌤 WeatherKit 
+  url: https://github.com/NSRingo/WeatherKit/releases/latest/download/iRingo.WeatherKit.sgmodule
+  enabled: true
 - name: 微博去广告&净化
   url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/weibo.module
   enabled: true
-- name: 广告拦截&净化合集
-  url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/blockAds.module
+- name: GitHub Raw Auto CDN
+  url: https://raw.githubusercontent.com/Yuheng0101/X/main/Scripts/GitRawAutoCDN/surge.sgmodule
   enabled: true
 - name: 'Script Hub: 重写 & 规则集转换'
   url: https://raw.githubusercontent.com/Script-Hub-Org/Script-Hub/refs/heads/main/modules/script-hub.beta.egern.yaml
