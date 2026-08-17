@@ -354,19 +354,19 @@ modules:
 - name: 哔哩哔哩
   url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/split/partB/bilibili.sgmodule
   enabled: true
-- name: 🎵 Spotify
+- name:  Spotify
   url: https://github.com/DualSubs/Spotify/releases/latest/download/DualSubs.Spotify.plugin
   enabled: true
-- name: ▶️ YouTube (Music)
+- name:  YouTube (Music)
   url: https://github.com/DualSubs/YouTube/releases/latest/download/DualSubs.YouTube.plugin
   enabled: true
-- name: 📍 定位服务
+- name:  定位服务
   url: https://github.com/NSRingo/LocationService/releases/latest/download/iRingo.LocationService.sgmodule
   enabled: true
-- name: 🗺 MapKit
+- name: MapKit
   url: https://github.com/NSRingo/MapKit/releases/latest/download/iRingo.Maps.sgmodule
   enabled: true
-- name: iRingo: 🌤 WeatherKit 
+- name: iRingo  WeatherKit 
   url: https://github.com/NSRingo/WeatherKit/releases/latest/download/iRingo.WeatherKit.sgmodule
   enabled: true
 - name: 微博去广告&净化
