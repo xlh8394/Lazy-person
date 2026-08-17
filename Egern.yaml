@@ -426,7 +426,7 @@ modules:
   url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/weibo.module
   enabled: true
 - name: 拦截HTTPDNS 
-  - url: https://raw.githubusercontent.com/QingRex/LoonKissSurge/refs/heads/main/Surge/Beta/拦截HTTPDNS.beta.sgmodule
+  url: https://raw.githubusercontent.com/QingRex/LoonKissSurge/refs/heads/main/Surge/Beta/拦截HTTPDNS.beta.sgmodule
   enabled: true
 - name: GitHub Raw Auto CDN
   url: https://raw.githubusercontent.com/Yuheng0101/X/main/Scripts/GitRawAutoCDN/surge.sgmodule
