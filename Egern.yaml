@@ -38,15 +38,26 @@ dns:
       disabled: false
   hosts:
     dns.google:
-    - 8.8.8.8, 8.8.4.4, 2001:4860:4860::8888, 2001:4860:4860::8844
+    - 8.8.8.8
+    - 8.8.4.4
+    - 2001:4860:4860::8888
+    - 2001:4860:4860::8844
     cloudflare-dns.com:
-    - 104.16.249.249, 104.16.248.249, 2606:4700::6810:f8f9, 2606:4700::6810:f9f9
+    - 104.16.249.249
+    - 104.16.248.249
+    - 2606:4700::6810:f8f9
+    - 2606:4700::6810:f9f9
     dns.alidns.com:
-    - 223.5.5.5, 223.6.6.6, 2400:3200:baba::1, 2400:3200::1
+    - 223.5.5.5
+    - 223.6.6.6
+    - 2400:3200:baba::1
+    - 2400:3200::1
     doh.pub:
-    - 1.12.12.12, 120.53.53.53
+    - 1.12.12.12
+    - 120.53.53.53
     dot.pub:
-    - 1.12.12.12, 120.53.53.53
+    - 1.12.12.12
+    - 120.53.53.53
   proxy_nameservers:
   - 119.29.29.29
   - 223.5.5.5
@@ -312,8 +323,8 @@ rules:
     disabled: false
 - rule_set:
     name: BiliBili
-    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMedia/ChinaMedia.yaml
-    policy: ChinaMedia
+    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/BiliBili/BiliBili.yaml
+    policy: BiliBili
     update_interval: 86400
     disabled: false
 - rule_set:
@@ -371,11 +382,6 @@ mitm:
     - raw.githubusercontent.com
     - gist.githubusercontent.com
     - github.com
-  hostnames_disabled:
-    includes:
-    - raw.githubusercontent.com
-    - gist.githubusercontent.com
-    - github.com
 modules:
 - name: Spotify(>=iOS15)
   url: https://raw.githubusercontent.com/app2smile/rules/master/plugin/spotify.plugin
@@ -410,19 +416,19 @@ modules:
 - name: 哔哩哔哩
   url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/split/partB/bilibili.sgmodule
   enabled: true
-- name:  Spotify
+- name: Spotify
   url: https://github.com/DualSubs/Spotify/releases/latest/download/DualSubs.Spotify.plugin
   enabled: true
-- name:  YouTube (Music)
+- name: YouTube (Music)
   url: https://github.com/DualSubs/YouTube/releases/latest/download/DualSubs.YouTube.plugin
   enabled: true
-- name:  定位服务
+- name: 定位服务
   url: https://github.com/NSRingo/LocationService/releases/latest/download/iRingo.LocationService.sgmodule
   enabled: true
 - name: MapKit
   url: https://github.com/NSRingo/MapKit/releases/latest/download/iRingo.Maps.sgmodule
   enabled: true
-- name: iRingo  WeatherKit 
+- name: iRingo WeatherKit
   url: https://github.com/NSRingo/WeatherKit/releases/latest/download/iRingo.WeatherKit.sgmodule
   enabled: true
 - name: 微博去广告&净化
