@@ -1,6 +1,11 @@
-# 配置名称: Egern 配置
-# 配置作者: 
+# ============================================================
+# 配置名称: Egern 配置 (整理优化版)
+# 配置作者:
 # 更新时间: 26-08-17 00:00
+
+# ============================================================
+
+# ---------------- 基础网络设置 ----------------
 http_port: 6152
 socks_port: 6153
 vif_only: true
@@ -10,6 +15,8 @@ geoip_db_url: https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Count
 asn_db_url: https://raw.githubusercontent.com/Loyalsoldier/geoip/release/GeoLite2-ASN.mmdb
 proxy_latency_test_url: http://1.1.1.1/generate_204
 direct_latency_test_url: http://wifi.vivo.com.cn/generate_204
+
+# ---------------- DNS 设置 ----------------
 dns:
   bootstrap:
   - system
@@ -24,14 +31,17 @@ dns:
     - https://cloudflare-dns.com/dns-query
     - https://dns.google/dns-query
   forward:
+  # 先拦截广告域名解析
   - proxy_rule_set:
       match: https://github.com/Repcz/Tool/raw/X/Egern/Rules/Reject.yaml
       value: REJECT
       disabled: false
+  # 国内域名走国内 DNS
   - proxy_rule_set:
       match: https://github.com/Repcz/Tool/raw/X/Egern/Rules/ChinaDomain.yaml
       value: Domestic-DNS
       disabled: false
+  # 其余全部走国内加密 DNS（兜底）
   - domain_wildcard:
       match: '*'
       value: Domestic-Encrypted-DNS
@@ -61,6 +71,9 @@ dns:
   proxy_nameservers:
   - 119.29.29.29
   - 223.5.5.5
+
+# ---------------- 真实 IP 直连域名（不走代理解析）----------------
+# 游戏主机 / 联机服务 / 特定 CDN，避免因走代理解析导致连不上
 real_ip_domains:
 - lancache.steamcontent.com
 - '*.msftconnecttest.com'
@@ -77,9 +90,15 @@ real_ip_domains:
 - '*.prod.cloud.netflix.com'
 - appboot.netflix.com
 - '*-appboot.netflix.com'
+
+# ============================================================
+# 策略组 (policy_groups)
+# ============================================================
 policy_groups:
+
+# ---- 订阅节点入口 ----
 - external:
-    name: Manual
+    name: Manual  # 订阅节点选择组，手动指定使用哪个节点
     type: select
     urls:
     - Your subscription
@@ -87,8 +106,10 @@ policy_groups:
     update_interval: 86400
     icon: https://fastly.jsdelivr.net/gh/shindgewongxj/WHATSINStash@master/icon/select.png
     hidden: false
+
+# ---- 分类策略组 ----
 - select:
-    name: Apple
+    name: Apple  # Apple 官方服务（App Store、iCloud 等）
     policies:
     - DIRECT
     - REJECT
@@ -104,7 +125,18 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple_2.png
     hidden: false
 - select:
-    name: BiliBili
+    name: AI  # AI 服务（ChatGPT、Claude、Gemini 等）
+    policies:
+    - Taiwan
+    - Japan
+    - Korea
+    - Singapore
+    - UnitedStates
+    flatten: false
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ChatGPT.png
+    hidden: false
+- select:
+    name: BiliBili  # 哔哩哔哩
     policies:
     - DIRECT
     - Manual
@@ -120,7 +152,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/bilibili_3.png
     hidden: false
 - select:
-    name: ChinaMedia
+    name: ChinaMedia  # 国内流媒体（爱奇艺、腾讯视频等）
     policies:
     - DIRECT
     - REJECT
@@ -136,7 +168,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/DomesticMedia.png
     hidden: false
 - select:
-    name: GlobalMedia
+    name: GlobalMedia  # 国外流媒体（Netflix、Disney+ 等）
     policies:
     - Manual
     - Auto
@@ -152,7 +184,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ForeignMedia.png
     hidden: false
 - select:
-    name: Spotify
+    name: Spotify  # Spotify 音乐服务
     policies:
     - Manual
     - Auto
@@ -168,7 +200,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Spotify.png
     hidden: false
 - select:
-    name: TikTok
+    name: TikTok  # 国际版抖音
     policies:
     - Manual
     - Auto
@@ -184,7 +216,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/TikTok_1.png
     hidden: false
 - select:
-    name: Emby
+    name: Emby  # 私人 Emby 媒体服务器
     policies:
     - DIRECT
     - Manual
@@ -200,7 +232,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Emby.png
     hidden: false
 - select:
-    name: GlobalSites
+    name: GlobalSites  # 其余国外网站（未被单独分类的服务）
     policies:
     - Manual
     - Auto
@@ -216,7 +248,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png
     hidden: false
 - select:
-    name: Final
+    name: Final  # 兜底策略组，未命中任何规则的流量走这里
     policies:
     - Manual
     - Auto
@@ -231,8 +263,10 @@ policy_groups:
     flatten: false
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png
     hidden: false
+
+# ---- 自动测速 ----
 - auto_test:
-    name: Auto
+    name: Auto  # 自动测速，从订阅节点中选延迟最低的
     policies:
     - Manual
     flatten: true
@@ -242,8 +276,10 @@ policy_groups:
     timeout: 5
     icon: https://fastly.jsdelivr.net/gh/Orz-3/mini@master/Color/Roundrobin.png
     hidden: false
+
+# ---- 按地区筛选的智能节点组（隐藏，供上方策略组调用）----
 - smart:
-    name: HongKong
+    name: HongKong  # 自动筛选香港节点
     policies:
     - Manual
     flatten: true
@@ -251,7 +287,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/HK.png
     hidden: true
 - smart:
-    name: Taiwan
+    name: Taiwan  # 自动筛选台湾节点
     policies:
     - Manual
     flatten: true
@@ -259,7 +295,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/TW.png
     hidden: true
 - smart:
-    name: Japan
+    name: Japan  # 自动筛选日本节点
     policies:
     - Manual
     flatten: true
@@ -267,7 +303,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/JP.png
     hidden: true
 - smart:
-    name: Korea
+    name: Korea  # 自动筛选韩国节点
     policies:
     - Manual
     flatten: true
@@ -275,7 +311,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/KR.png
     hidden: true
 - smart:
-    name: Singapore
+    name: Singapore  # 自动筛选新加坡节点
     policies:
     - Manual
     flatten: true
@@ -283,86 +319,106 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/SG.png
     hidden: true
 - smart:
-    name: UnitedStates
+    name: UnitedStates  # 自动筛选美国节点
     policies:
     - Manual
     flatten: true
     filter: 美国|美|US|🇺🇸|(?i)States
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/US.png
     hidden: true
+
+# ============================================================
+# 分流规则 (rules) —— 按命中优先级从上到下匹配
+# ============================================================
 rules:
+# 1. 规则修正：确保部分域名不被误拦截，优先直连
 - rule_set:
-    name: 规则修正
+    name: 规则修正  # 修正部分域名的误判/误拦截，强制直连
     match: https://raw.githubusercontent.com/Centralmatrix3/Matrix-io/master/Egern/Ruleset/Unbreak.yaml
     policy: DIRECT
     update_interval: 86400
     disabled: false
+# 2. 广告拦截
 - rule_set:
-    name: AdBlock
+    name: AdBlock  # 广告域名拦截
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Advertising/Advertising.yaml
     policy: REJECT
     update_interval: 86400
     disabled: false
+# 3. 按 App/平台分流
 - rule_set:
-    name: Spotify
+    name: AI  # AI 服务域名匹配（ChatGPT、Claude、Gemini 等），命中后走 AI 策略组
+    match: https://github.com/Repcz/Tool/raw/X/Egern/Rules/AI.yaml
+    policy: AI
+    update_interval: 86400
+    disabled: false
+- domain_suffix:
+    name: GoogleVoice  # Google Voice 直接指定走美国节点，不使用单独策略组
+    match: voice.google.com
+    policy: UnitedStates
+    disabled: false
+- rule_set:
+    name: Spotify  # Spotify 域名匹配，命中后走 Spotify 策略组
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Spotify/Spotify.yaml
     policy: Spotify
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: TikTok
+    name: TikTok  # TikTok 域名匹配，命中后走 TikTok 策略组
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/TikTok/TikTok.yaml
     policy: TikTok
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: Emby
+    name: Emby  # Emby 域名匹配，命中后走 Emby 策略组
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Emby/Emby.yaml
     policy: Emby
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: BiliBili
+    name: BiliBili  # 哔哩哔哩域名匹配，命中后走 BiliBili 策略组
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/BiliBili/BiliBili.yaml
     policy: BiliBili
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: ChinaMedia
+    name: ChinaMedia  # 国内流媒体域名匹配
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMedia/ChinaMedia.yaml
     policy: ChinaMedia
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: GlobalMedia
+    name: GlobalMedia  # 国外流媒体域名匹配
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GlobalMedia/GlobalMedia.yaml
     policy: GlobalMedia
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: GlobalSites
+    name: GlobalSites  # 常见需代理访问的国外网站合集
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Proxy/Proxy.yaml
     policy: GlobalSites
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: Apple
+    name: Apple  # Apple 服务域名匹配
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.yaml
     policy: Apple
     update_interval: 86400
     disabled: false
+# 4. 局域网 / 国内网站直连
 - rule_set:
-    name: LAN
+    name: LAN  # 局域网地址直连
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Lan/Lan.yaml
     policy: DIRECT
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: ChinaSites
+    name: ChinaSites  # 国内网站域名直连
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/China/China.yaml
     policy: DIRECT
     update_interval: 86400
     disabled: false
+# 5. GeoIP 兜底：国内 IP 直连，非国内走全球网站策略组
 - geoip:
     match: CN
     policy: DIRECT
@@ -371,9 +427,14 @@ rules:
       geoip:
         match: CN
     policy: GlobalSites
+# 6. 最终兜底
 - default:
-    name: Final
+    name: Final  # 兜底规则，未命中以上任何规则的流量走这里
     policy: Final
+
+# ============================================================
+# MITM（中间人解密，仅用于 Script-Hub / Sub-Store 等脚本管理）
+# ============================================================
 mitm:
   ca_p12: egern.p12
   ca_passphrase: egern
@@ -382,13 +443,54 @@ mitm:
     - raw.githubusercontent.com
     - gist.githubusercontent.com
     - github.com
+
+# ============================================================
+# 功能模块 (modules) —— 按用途分组
+# ============================================================
 modules:
+
+# ---- 脚本管理 / 订阅工具 ----
+- name: 'Script Hub: 重写 & 规则集转换'
+  url: https://raw.githubusercontent.com/Script-Hub-Org/Script-Hub/refs/heads/main/modules/script-hub.beta.egern.yaml
+  enabled: true
+- name: Sub-Store
+  url: https://raw.githubusercontent.com/sub-store-org/Sub-Store/refs/heads/master/config/Egern.yaml
+  enabled: true
+- name: BoxJs
+  url: https://raw.githubusercontent.com/chavyleung/scripts/master/box/rewrite/boxjs.rewrite.surge.sgmodule
+  enabled: true
+- name: GitHub Raw Auto CDN
+  url: https://raw.githubusercontent.com/Yuheng0101/X/main/Scripts/GitRawAutoCDN/surge.sgmodule
+  enabled: true
+
+# ---- iRingo 系统级服务修复 ----
+- name: 定位服务
+  url: https://github.com/NSRingo/LocationService/releases/latest/download/iRingo.LocationService.sgmodule
+  enabled: true
+- name: MapKit
+  url: https://github.com/NSRingo/MapKit/releases/latest/download/iRingo.Maps.sgmodule
+  enabled: true
+- name: iRingo WeatherKit
+  url: https://github.com/NSRingo/WeatherKit/releases/latest/download/iRingo.WeatherKit.sgmodule
+  enabled: true
+
+# ---- 影音娱乐类（分流/解锁）----
 - name: Spotify(>=iOS15)
   url: https://raw.githubusercontent.com/app2smile/rules/master/plugin/spotify.plugin
   enabled: true
 - name: YouTube
   url: https://raw.githubusercontent.com/fmz200/wool_scripts/main/Surge/module/split/partY/YouTube.sgmodule
   enabled: true
+
+# ---- 影音娱乐类（双语字幕，注意与上方 Spotify 分流插件功能不同）----
+- name: Spotify
+  url: https://github.com/DualSubs/Spotify/releases/latest/download/DualSubs.Spotify.plugin
+  enabled: true
+- name: YouTube (Music)
+  url: https://github.com/DualSubs/YouTube/releases/latest/download/DualSubs.YouTube.plugin
+  enabled: true
+
+# ---- 国内电商 / 生活服务类流量分离 ----
 - name: 山姆会员商店
   url: https://raw.githubusercontent.com/fmz200/wool_scripts/main/Surge/module/split/partS/SamClub.sgmodule
   enabled: true
@@ -416,33 +518,8 @@ modules:
 - name: 哔哩哔哩
   url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/split/partB/bilibili.sgmodule
   enabled: true
-- name: Spotify
-  url: https://github.com/DualSubs/Spotify/releases/latest/download/DualSubs.Spotify.plugin
-  enabled: true
-- name: YouTube (Music)
-  url: https://github.com/DualSubs/YouTube/releases/latest/download/DualSubs.YouTube.plugin
-  enabled: true
-- name: 定位服务
-  url: https://github.com/NSRingo/LocationService/releases/latest/download/iRingo.LocationService.sgmodule
-  enabled: true
-- name: MapKit
-  url: https://github.com/NSRingo/MapKit/releases/latest/download/iRingo.Maps.sgmodule
-  enabled: true
-- name: iRingo WeatherKit
-  url: https://github.com/NSRingo/WeatherKit/releases/latest/download/iRingo.WeatherKit.sgmodule
-  enabled: true
+
+# ---- 净化去广告 ----
 - name: 微博去广告&净化
   url: https://github.com/fmz200/wool_scripts/raw/main/Surge/module/weibo.module
-  enabled: true
-- name: GitHub Raw Auto CDN
-  url: https://raw.githubusercontent.com/Yuheng0101/X/main/Scripts/GitRawAutoCDN/surge.sgmodule
-  enabled: true
-- name: 'Script Hub: 重写 & 规则集转换'
-  url: https://raw.githubusercontent.com/Script-Hub-Org/Script-Hub/refs/heads/main/modules/script-hub.beta.egern.yaml
-  enabled: true
-- name: Sub-Store
-  url: https://raw.githubusercontent.com/sub-store-org/Sub-Store/refs/heads/master/config/Egern.yaml
-  enabled: true
-- name: BoxJs
-  url: https://raw.githubusercontent.com/chavyleung/scripts/master/box/rewrite/boxjs.rewrite.surge.sgmodule
   enabled: true
