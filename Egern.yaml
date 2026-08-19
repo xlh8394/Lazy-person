@@ -1,7 +1,13 @@
 # ============================================================
-# 配置名称: Egern 配置 (AI整理优化版)
-# 配置作者:所有资料来自网络
-# 更新时间: 26-08-17 00:00
+# 配置名称: Egern 配置 (AI整理优化版 v2)
+# 配置作者:所有资料来自网络，本次由 Claude 优化
+# 更新时间: 26-08-19 00:00
+# 本次改动说明（相对上一版）：
+#   1. DNS：新增"境外/代理域名 -> Foreign-Encrypted-DNS"转发规则，
+#      避免走代理的域名也用国内 DNS 解析，防止解析结果与实际代理路径不匹配
+#   2. 简化 GeoIP 兜底逻辑，去掉冗余的 not 规则，直接落到 default(Final)
+#   3. AdBlock / AI 规则集更新频率从 24h 缩短到 12h，减少滞后
+#   4. mitm 密码保留默认值，但强烈建议自行在 Egern App 内重新生成证书和密码（见文末说明）
 # ============================================================
 
 # ---------------- 基础网络设置 ----------------
@@ -30,17 +36,23 @@ dns:
     - https://cloudflare-dns.com/dns-query
     - https://dns.google/dns-query
 forward:
-# 先拦截广告域名解析（精简版）
+# 1. 先拦截广告域名解析（精简版）
 - proxy_rule_set:
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/AdvertisingLite/AdvertisingLite_Domain.list
     value: REJECT
     disabled: false
-# 国内域名走国内 DNS
+# 2. 国内域名走国内 DNS
 - proxy_rule_set:
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/China/China_Domain.list
-    value: Domestic-DNS          # 或改成 Domestic-Encrypted-DNS
+    value: Domestic-DNS
     disabled: false
-# 其余全部走国内加密 DNS（兜底）
+# 3. 【新增】需要代理访问的境外域名，走境外加密 DNS，避免用国内 DNS 解析导致
+#    结果与实际代理线路不一致（例如解析到国内 CDN 节点、或被污染）
+- proxy_rule_set:
+    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/Global/Global_Domain.list
+    value: Foreign-Encrypted-DNS
+    disabled: false
+# 4. 其余全部走国内加密 DNS（兜底，覆盖未被上面规则集收录的新域名）
 - domain_wildcard:
     match: '*'
     value: Domestic-Encrypted-DNS
@@ -342,19 +354,19 @@ rules:
     policy: DIRECT
     update_interval: 86400
     disabled: false
-# 2. 广告拦截
+# 2. 广告拦截（更新频率调整为 12 小时，广告规则变动较快）
 - rule_set:
     name: AdBlock  # 广告域名拦截
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/Advertising/Advertising.list
     policy: REJECT
-    update_interval: 86400
+    update_interval: 43200
     disabled: false
 # 3. 按 App/平台分流
 - rule_set:
     name: AI  # AI 服务域名匹配（ChatGPT、Claude、Gemini 等），命中后走 AI 策略组
     match: https://github.com/Repcz/Tool/raw/X/Egern/Rules/AI.yaml
     policy: AI
-    update_interval: 86400
+    update_interval: 43200
     disabled: false
 - rule_set:
     name: GoogleVoice  # Google Voice 直接指定走美国节点，不使用单独策略组
@@ -423,15 +435,11 @@ rules:
     policy: DIRECT
     update_interval: 86400
     disabled: false
-# 5. GeoIP 兜底：国内 IP 直连，非国内走全球网站策略组
+# 5. GeoIP 兜底：国内 IP 直连（简化：去掉了重复的 "非 CN -> GlobalSites"，
+#    非国内 IP 直接落到下面第 6 条 default(Final)，逻辑更简洁，效果一致）
 - geoip:
     match: CN
     policy: DIRECT
-- not:
-    match:
-      geoip:
-        match: CN
-    policy: GlobalSites
 # 6. 最终兜底
 - default:
     name: Final  # 兜底规则，未命中以上任何规则的流量走这里
@@ -439,6 +447,9 @@ rules:
 
 # ============================================================
 # MITM（中间人解密，仅用于 Script-Hub / Sub-Store 等脚本管理）
+# 【安全建议】ca_passphrase 目前是 Egern 官方默认值 "egern"，网上公开可查。
+# 建议在 Egern App 内重新生成一份专属证书（自定义密码），并替换下面两项，
+# 而不是直接沿用默认证书，尤其是这份配置会被公开分享的情况下。
 # ============================================================
 mitm:
   ca_p12: egern.p12
