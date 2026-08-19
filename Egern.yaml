@@ -30,21 +30,21 @@ dns:
     - https://cloudflare-dns.com/dns-query
     - https://dns.google/dns-query
 forward:
-  # 先拦截广告域名解析（精简版）
-  - proxy_rule_set:
-      match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/AdvertisingLite/AdvertisingLite_Domain.list
-      value: REJECT
-      disabled: false
-  # 国内域名走国内 DNS
-  - proxy_rule_set:
-      match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/China/China_Domain.list
-      value: Domestic-DNS          # 或改成 Domestic-Encrypted-DNS
-      disabled: false
-  # 其余全部走国内加密 DNS（兜底）
-  - domain_wildcard:
-      match: '*'
-      value: Domestic-Encrypted-DNS
-      disabled: false
+# 先拦截广告域名解析（精简版）
+- proxy_rule_set:
+    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/AdvertisingLite/AdvertisingLite_Domain.list
+    value: REJECT
+    disabled: false
+# 国内域名走国内 DNS
+- proxy_rule_set:
+    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/China/China_Domain.list
+    value: Domestic-DNS          # 或改成 Domestic-Encrypted-DNS
+    disabled: false
+# 其余全部走国内加密 DNS（兜底）
+- domain_wildcard:
+    match: '*'
+    value: Domestic-Encrypted-DNS
+    disabled: false
   hosts:
     dns.google:
     - 8.8.8.8
