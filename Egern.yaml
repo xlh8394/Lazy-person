@@ -35,28 +35,28 @@ dns:
     Foreign-Encrypted-DNS:
     - https://cloudflare-dns.com/dns-query
     - https://dns.google/dns-query
-forward:
-# 1. 先拦截广告域名解析（精简版）
-- proxy_rule_set:
-    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/AdvertisingLite/AdvertisingLite_Domain.list
-    value: REJECT
-    disabled: false
-# 2. 国内域名走国内 DNS
-- proxy_rule_set:
-    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/China/China_Domain.list
-    value: Domestic-DNS
-    disabled: false
-# 3. 【新增】需要代理访问的境外域名，走境外加密 DNS，避免用国内 DNS 解析导致
-#    结果与实际代理线路不一致（例如解析到国内 CDN 节点、或被污染）
-- proxy_rule_set:
-    match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/Global/Global_Domain.list
-    value: Foreign-Encrypted-DNS
-    disabled: false
-# 4. 其余全部走国内加密 DNS（兜底，覆盖未被上面规则集收录的新域名）
-- domain_wildcard:
-    match: '*'
-    value: Domestic-Encrypted-DNS
-    disabled: false
+  forward:
+  # 1. 先拦截广告域名解析（精简版）
+  - proxy_rule_set:
+      match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/AdvertisingLite/AdvertisingLite_Domain.list
+      value: REJECT
+      disabled: false
+  # 2. 国内域名走国内 DNS
+  - proxy_rule_set:
+      match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/China/China_Domain.list
+      value: Domestic-DNS
+      disabled: false
+  # 3. 【新增】需要代理访问的境外域名，走境外加密 DNS，避免用国内 DNS 解析导致
+  #    结果与实际代理线路不一致（例如解析到国内 CDN 节点、或被污染）
+  - proxy_rule_set:
+      match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/Global/Global_Domain.list
+      value: Foreign-Encrypted-DNS
+      disabled: false
+  # 4. 其余全部走国内加密 DNS（兜底，覆盖未被上面规则集收录的新域名）
+  - domain_wildcard:
+      match: '*'
+      value: Domestic-Encrypted-DNS
+      disabled: false
   hosts:
     dns.google:
     - 8.8.8.8
