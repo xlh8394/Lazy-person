@@ -368,8 +368,25 @@ rules:
     policy: AI
     update_interval: 43200
     disabled: false
+- domain_suffix:
+    name: GoogleVoice-Manual  # 手动补充的 Google Voice 相关域名，优先于下方规则集命中
+    match: telephony.goog
+    policy: UnitedStates
+    disabled: false
+- domain_suffix:
+    match: clients6.google.com
+    policy: UnitedStates
+    disabled: false
+- domain_suffix:
+    match: voice-pa.googleapis.com
+    policy: UnitedStates
+    disabled: false
+- domain_suffix:
+    match: voice.google.com
+    policy: UnitedStates
+    disabled: false    
 - rule_set:
-    name: GoogleVoice  # Google Voice 直接指定走美国节点，不使用单独策略组
+    name: GoogleVoice  # Google Voice 规则集兜底，覆盖手动列表之外的相关域名
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Surge/GoogleVoice/GoogleVoice.list
     policy: UnitedStates
     update_interval: 86400
