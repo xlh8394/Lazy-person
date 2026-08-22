@@ -1,626 +1,200 @@
-# 配置名称: Clash 配置（Hako / Apple 平台优化版 · 分流规则源已替换为 MetaCubeX/meta-rules-dat）
-# 原作者: Claude 二次优化 → 基于 Hako 配置参考进一步精简
-# 更新时间: 2026-08-22
+# >>=====================================<<
+# 已参照 https://clash.md/zh/guide/config/ （Hako 配置参考）优化
+# 项目地址: （https://github.com/666OS/YYDS） AI2次修改
+# 请在 proxy-providers 中填入你自己的订阅链接，或在 proxies 下手动添加节点
 #
-# 本次改动：
-# 1. rule-providers 全部改为引用 https://github.com/MetaCubeX/meta-rules-dat (meta 分支, .mrs 格式)，
-#    不再依赖 blackmatrix7/ios_rule_script。
-# 2. geosite 分类沿用 v2fly/domain-list-community 命名体系（meta-rules-dat 的上游数据源）。
-# 3. Unbreak / Emby 两个规则集是自定义域名清单，meta-rules-dat 中没有对应分类，予以保留原样（未替换）。
-# 4. CN-Media / Global-Media 在 meta-rules-dat 中没有和 ios_rule_script 完全一一对应的聚合分类，
-#    这里用较接近的 geosite 分类做了近似替代，建议部署前自行核对效果，必要时再补充自定义规则。
-#
-# 优化要点（对齐 https://clash.md/zh/guide/config/）：
-# 1. 移除 port / socks-port / redir-port / mixed-port / tproxy-port / external-controller / allow-lan 等高级功能字段
-# 2. 移除 global-client-fingerprint（不适用 Apple）
-# 3. geo 相关字段简化，由 Hako 管理资源与更新
-# 4. DNS 保留 respect-rules / proxy-server-nameserver / direct-nameserver 等优秀设计
-# 5. TUN / 嗅探精简，Hako 在 Packet Tunnel 中自行管理
-# 6. 保持配置简单、结构清晰，只保留实际需要的内容
+# ------------------------------------
 
-# [通用设置]（推荐保留）
+# 锚点定义
+x-base-provider: &base-provider {type: http, interval: 86400, proxy: DIRECT, health-check: {enable: true, url: 'https://www.google.com/generate_204', interval: 300}, filter: '^(?!.*(群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author))'}
+
+x-url-test:        &url-test        { type: url-test, url: "https://www.gstatic.com/generate_204", interval: 300, empty-fallback: REJECT, include-all: true, hidden: true, tolerance: 50 }
+x-fallback:        &fallback        { type: fallback, url: "https://www.gstatic.com/generate_204", interval: 300, empty-fallback: REJECT }
+
+# 各地区节点筛选正则
+x-filter-hk:    &filter-hk    "^(?i)(?=.*(香港|港深|深港|沪港|广港|陆港|(?<![a-zA-Z])(hk|hkg)(?![a-zA-Z])|hongkong|hong kong|🇭🇰))(?!.*(排除)).*$"
+x-filter-tw:    &filter-tw    "^(?i)(?=.*(台湾|台北|台中|台南|台东|湾湾|(?<![a-zA-Z])(tw|tpe|khh|tsa)(?![a-zA-Z])|taiwan|taipei|🇹🇼|🇼🇸))(?!.*(排除)).*$"
+x-filter-jp:    &filter-jp    "^(?i)(?=.*(日本|东京|大阪|京都|神奈川|琦玉|(?<![a-zA-Z])(jp|nrt|hnd|kix|cts|fuk)(?![a-zA-Z])|japan|tokyo|🇯🇵))(?!.*(排除)).*$"
+x-filter-sg:    &filter-sg    "^(?i)(?=.*(新加坡|坡县|坡|狮城|(?<![a-zA-Z])(sg|sin|xsp)(?![a-zA-Z])|singapore|🇸🇬))(?!.*(排除)).*$"
+x-filter-kr:    &filter-kr    "^(?i)(?=.*(韩国|韓國|首尔|首爾|南朝鲜|(?<![a-zA-Z])(kr|icn|gmp|pus)(?![a-zA-Z])|korea|seoul|🇰🇷))(?!.*(排除)).*$"
+x-filter-us:    &filter-us    "^(?i)(?=.*(美国|美东|美西|美中|美南|美港|美日|中美|美专|(?<![a-zA-Z])(us|usa|lax|sfo|jfk|sjc)(?![a-zA-Z])|america|united states|🇺🇸))(?!.*(排除)).*$"
+
+# 各类优先级列表（回退顺序）
+x-oversea:      &oversea      [FALLBACK, MANUAL, HK, TW, JP, SG, KR, US, DIRECT]
+x-direct:       &direct       [DIRECT, FALLBACK, MANUAL, HK, TW, JP, SG, KR, US]
+x-us-first:     &us-first     [US, FALLBACK, MANUAL, HK, TW, JP, SG, KR, DIRECT]
+x-hk-first:     &hk-first     [HK, FALLBACK, MANUAL, TW, JP, SG, KR, US, DIRECT]
+x-sg-first:     &sg-first     [SG, FALLBACK, MANUAL, HK, TW, JP, KR, US, DIRECT]
+x-jp-first:     &jp-first     [JP, FALLBACK, MANUAL, HK, TW, SG, KR, US, DIRECT]
+
+x-rule-set-domain: &rule-set-domain { type: http, behavior: domain, format: mrs, interval: 86400 }
+x-rule-set-ipcidr: &rule-set-ipcidr { type: http, behavior: ipcidr, format: mrs, interval: 86400 }
+
+# 机场订阅（在此处填入你自己的订阅地址）
+proxy-providers:
+  Primary: {<<: *base-provider, url: 'YOUR_PRIMARY_URL', override: {additional-prefix: '[P] '}}
+  # Backup:   {<<: *base-provider, url: 'YOUR_BACKUP_URL',  override: {additional-prefix: '[B] '}}
+
+# 自定义节点（可手动添加，示例如下）
+proxies:
+  # - name: "ss1"
+  #   type: ss
+  #   server: server
+  #   port: 443
+  #   cipher: aes-128-gcm
+  #   password: password
+
+# 常规设置
+# 说明：已去掉 redir-port / tproxy-port —— 二者在 Hako 所用的 Apple
+# Packet Tunnel 模型下均为“不支持”，原本就不会生效，去掉不影响功能。
 mode: rule
-log-level: warning
-ipv6: false                       # 如宽带双栈可改为 true
+port: 7890
+socks-port: 7891
+mixed-port: 7893
+ipv6: false
+allow-lan: false
 unified-delay: true
 tcp-concurrent: true
-keep-alive-interval: 30           # 保持连接活跃，减少握手抖动
+log-level: silent
+bind-address: '*'
+find-process-mode: 'always'
+keep-alive-interval: 15
+keep-alive-idle: 600
+# 安全提醒：请换成你自己独立的强密码，不要沿用模板默认值。
+# 以下为本次生成的随机占位示例：
+authentication: [mihomo:faGGFbQxepURWfd89CdR]
+skip-auth-prefixes: [127.0.0.1/8, '::1/128']
+experimental: {quic-go-disable-gso: true}
 
-# find-process-mode 在 iOS/tvOS 不支持，macOS 可用；保持 off 即可
-# find-process-mode: off
+# 控制面板 / 仪表盘
+external-ui-url: https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip
+external-ui-name: zashboard
+external-ui: ui
+external-controller: 127.0.0.1:9090
+# 安全提醒：同上，这是控制面的访问密钥，务必替换为你自己的强密钥。
+secret: DOBGfLodKpg0Smk1BKVclU8S
+profile: {store-selected: true, store-fake-ip: true}
 
-# [数据库]（Hako 管理，精简）
-geodata-mode: true
-# geo-auto-update / geox-url 由 Hako 管理，手动指定可能被覆盖或无效
-# 如需自定义可取消注释，改用 meta-rules-dat 的资源：
-# geo-auto-update: true
-# geodata-loader: memconservative
-# geox-url:
-#   geoip: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/release/geoip.metadb"
-#   geosite: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/release/geosite.dat"
-#   mmdb: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/release/country.mmdb"
-#   asn: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/release/GeoLite2-ASN.mmdb"
-
-# [DNS设置]（保留原优秀设计，适配 Hako）
-dns:
-  enable: true                    # Hako 可能管理/强制
-  ipv6: false
-  prefer-h3: false
-  respect-rules: true             # DNS 请求本身也遵循分流规则，避免死循环/泄漏
-  enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.1/16
-  use-hosts: false
-  use-system-hosts: false
-  default-nameserver:             # 解析 nameserver 本身用，必须纯 IP
-    - 223.5.5.5
-    - 119.29.29.29
-  nameserver:
-    - https://doh.pub/dns-query
-    - https://dns.alidns.com/dns-query
-  proxy-server-nameserver:        # 解析代理节点域名，走本地/国内 DNS，避免死锁
-    - https://223.5.5.5/dns-query
-    - https://dns.alidns.com/dns-query
-  direct-nameserver:              # DIRECT 规则用国内 DNS，拿最优 CDN
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
-  direct-nameserver-follow-policy: false
-  fake-ip-filter:
-    - '*.lan'
-    - '+.local'
-    - 'geosite:private'
-    - 'geosite:category-ntp'
-
-# [缓存设置]
-profile:
-  store-selected: true
-  store-fake-ip: false            # Hako/tvOS 可能清理缓存，按需 true
-
-# [嗅探设置]（精简，保留必要）
+# 域名/协议嗅探
 sniffer:
   enable: true
-  force-dns-mapping: true
-  parse-pure-ip: true
-  override-destination: false
   sniff:
-    HTTP:
-      ports: [80, 8080-8880]
-      override-destination: true
-    TLS:
-      ports: [443, 8443]
-    QUIC:
-      ports: [443, 8443]
-  skip-domain:
-    - "+.push.apple.com"
-    - "+.apple-dns.net"
+    HTTP:  {ports: [80, 8080-8880], override-destination: true}
+    TLS:   {ports: [443, 8443]}
+    QUIC:  {ports: [443, 8443]}
+  skip-domain: ["Mijia Cloud", "+.push.apple.com"]
 
-# [代理订阅]
-proxy-providers:
-  subscribe:
-    type: http
-    url: "https:/Your subscription"          # 请替换为真实订阅
-    path: ./Server/subscribe.yaml
-    interval: 86400
-    health-check:
-      enable: true
-      url: https://cp.cloudflare.com/generate_204
-      interval: 3600
-      timeout: 5000
-      lazy: true
+# TUN 模式
+# 说明：已去掉 tun.auto-redirect —— 该字段仅对 Android / Linux 有效
+# （参考表标注“不适用”），在苹果平台上不会产生任何作用。
+tun:
+  enable: false
+  stack: mixed
+  dns-hijack: ["any:53", "tcp://any:53"]
+  auto-route: true
+  auto-detect-interface: true
 
-# [策略组]（完整保留，未改动）
+# DNS 设置
+dns:
+  enable: true
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver: [119.29.29.29, 180.184.1.1, 223.5.5.5]
+  nameserver: [https://dns.alidns.com/dns-query, https://doh.pub/dns-query]
+  fake-ip-filter: ["+.lan", "*.local", "+.gstatic.com", "+.miwifi.com", "+.market.xiaomi.com", "+.push.apple.com"]
+
+# 策略组
 proxy-groups:
+  # 分流类
+  - { name: TM,        type: select, proxies: *sg-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Telegram_X.png }
+  - { name: SOCIAL,    type: select, proxies: *us-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Twitter.png }
+  - { name: TIKTOK,    type: select, proxies: *us-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/TikTok.png }
+  - { name: AI,        type: select, proxies: *us-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/AI.png }
+  - { name: DEV,       type: select, proxies: *us-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/GitHub.png }
+  - { name: SPOTIFY,   type: select, proxies: *us-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Spotify.png }
+  - { name: STREAMING, type: select, proxies: *us-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Streaming.png }
+  - { name: GOOGLE,    type: select, proxies: *us-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Google_Search.png }
+  - { name: APPLE,     type: select, proxies: *direct, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Apple_1.png }
+  - { name: OUTCN,     type: select, proxies: *oversea, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Global.png }
+  - { name: CN,        type: select, proxies: *direct, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/China.png }
+  - { name: MATCH,     type: select, proxies: *oversea, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Final.png }
 
-  - name: "Manual"
-    type: select
-    icon: https://raw.githubusercontent.com/Centralmatrix3/Matrix-io/master/Gallery/Color/Static.png
-    url: "https://cp.cloudflare.com/generate_204"
-    include-all: true
-    filter: "^"
-    interval: 3600
-    lazy: true
+  # 自动回退
+  - { name: FALLBACK, <<: *fallback, proxies: [US, JP, SG, KR, HK, TW], icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/ULB.png }
 
-  - name: "Apple"
-    type: select
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple_2.png
-    proxies:
-      - DIRECT
-      - Manual
-      - Auto
-      - HK
-      - TW
-      - JP
-      - KR
-      - SG
-      - US
+  # 手动选择（全部节点）
+  - { name: MANUAL,    type: select, include-all: true, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Clubhouse.png }
 
-  - name: "bilibili"
-    type: select
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/bilibili_3.png
-    proxies:
-      - DIRECT
-      - Manual
-      - Auto
-      - HK
-      - TW
-      - JP
-      - KR
-      - SG
-      - US
+  # 各地区延迟测速
+  - { name: HK, <<: *url-test, filter: *filter-hk, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Hong_Kong.png }
+  - { name: TW, <<: *url-test, filter: *filter-tw, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Taiwan.png }
+  - { name: JP, <<: *url-test, filter: *filter-jp, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Japan.png }
+  - { name: SG, <<: *url-test, filter: *filter-sg, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Singapore.png }
+  - { name: KR, <<: *url-test, filter: *filter-kr, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Korea.png }
+  - { name: US, <<: *url-test, filter: *filter-us, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/United_States.png }
 
-  - name: "CN-Media"
-    type: select
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/DomesticMedia.png
-    proxies:
-      - DIRECT
-      - Manual
-      - Auto
-      - HK
-      - TW
-      - JP
-      - KR
-      - SG
-      - US
-
-  - name: "Global-Media"
-    type: select
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ForeignMedia.png
-    proxies:
-      - Manual
-      - Auto
-      - DIRECT
-      - HK
-      - TW
-      - JP
-      - KR
-      - SG
-      - US
-
-  - name: "AI"
-    type: select
-    icon: https://fastly.jsdelivr.net/gh/shindgewongxj/WHATSINStash@master/icon/anthropic.png
-    proxies:
-      - Manual
-      - Auto
-      - DIRECT
-      - HK
-      - TW
-      - JP
-      - KR
-      - SG
-      - US
-
-  - name: "TikTok"
-    type: select
-    icon: https://fastly.jsdelivr.net/gh/shindgewongxj/WHATSINStash@master/icon/tiktok.png
-    proxies:
-      - Manual
-      - Auto
-      - DIRECT
-      - HK
-      - TW
-      - JP
-      - KR
-      - SG
-      - US
-
-  - name: "Microsoft"
-    type: select
-    icon: https://fastly.jsdelivr.net/gh/shindgewongxj/WHATSINStash@master/icon/microsoft.png
-    proxies:
-      - Manual
-      - Auto
-      - DIRECT
-      - HK
-      - TW
-      - JP
-      - KR
-      - SG
-      - US
-
-  - name: "Emby"
-    type: select
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Emby.png
-    proxies:
-      - Manual
-      - Auto
-      - DIRECT
-      - HK
-      - TW
-      - JP
-      - KR
-      - SG
-      - US
-
-  - name: "Spotify"
-    type: select
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Spotify.png
-    proxies:
-      - Manual
-      - Auto
-      - DIRECT
-      - HK
-      - TW
-      - JP
-      - KR
-      - SG
-      - US
-
-  - name: "Gaming"
-    type: select
-    icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Game.png
-    proxies:
-      - Manual
-      - Auto
-      - DIRECT
-      - HK
-      - TW
-      - JP
-      - KR
-      - SG
-      - US
-
-  - name: "Global"
-    type: select
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png
-    proxies:
-      - Manual
-      - Auto
-      - DIRECT
-      - HK
-      - TW
-      - JP
-      - KR
-      - SG
-      - US
-
-  - name: "Final"
-    type: select
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png
-    proxies:
-      - Manual
-      - Auto
-      - DIRECT
-      - HK
-      - TW
-      - JP
-      - KR
-      - SG
-      - US
-
-  # --- 自动测速节点组 ---
-
-  - name: "Auto"
-    type: url-test
-    icon: https://fastly.jsdelivr.net/gh/Orz-3/mini@master/Color/Roundrobin.png
-    url: "https://cp.cloudflare.com/generate_204"
-    include-all: true
-    filter: "^"
-    tolerance: 50
-    interval: 3600
-    lazy: true
-
-  - name: "HK-AUTO"
-    type: url-test
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png
-    url: "https://cp.cloudflare.com/generate_204"
-    include-all: true
-    filter: "香港|港|🇭🇰|HK|(?i)Hong"
-    tolerance: 50
-    interval: 3600
-    lazy: true
-    hidden: true
-
-  - name: "HK-BALANCE"
-    type: load-balance
-    strategy: round-robin
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png
-    url: "https://cp.cloudflare.com/generate_204"
-    include-all: true
-    filter: "香港|港|🇭🇰|HK|(?i)Hong"
-    interval: 3600
-    lazy: true
-    hidden: true
-
-  - name: "HK"
-    type: select
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png
-    include-all: true
-    filter: "香港|港|🇭🇰|HK|(?i)Hong"
-    proxies:
-      - HK-AUTO
-      - HK-BALANCE
-
-  - name: "TW-AUTO"
-    type: url-test
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/China.png
-    url: "https://cp.cloudflare.com/generate_204"
-    include-all: true
-    filter: "台湾|台|TW|🇹🇼"
-    tolerance: 50
-    interval: 3600
-    lazy: true
-    hidden: true
-
-  - name: "TW-BALANCE"
-    type: load-balance
-    strategy: round-robin
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/China.png
-    url: "https://cp.cloudflare.com/generate_204"
-    include-all: true
-    filter: "台湾|台|TW|🇹🇼"
-    interval: 3600
-    lazy: true
-    hidden: true
-
-  - name: "TW"
-    type: select
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/China.png
-    include-all: true
-    filter: "台湾|台|TW|🇹🇼"
-    proxies:
-      - TW-AUTO
-      - TW-BALANCE
-
-  - name: "JP-AUTO"
-    type: url-test
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png
-    url: "https://cp.cloudflare.com/generate_204"
-    include-all: true
-    filter: "日本|日|JP|🇯🇵"
-    tolerance: 50
-    interval: 3600
-    lazy: true
-    hidden: true
-
-  - name: "JP-BALANCE"
-    type: load-balance
-    strategy: round-robin
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png
-    url: "https://cp.cloudflare.com/generate_204"
-    include-all: true
-    filter: "日本|日|JP|🇯🇵"
-    interval: 3600
-    lazy: true
-    hidden: true
-
-  - name: "JP"
-    type: select
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png
-    include-all: true
-    filter: "日本|日|JP|🇯🇵"
-    proxies:
-      - JP-AUTO
-      - JP-BALANCE
-
-  - name: "KR-AUTO"
-    type: url-test
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Korea.png
-    url: "https://cp.cloudflare.com/generate_204"
-    include-all: true
-    filter: "韩国|韩|KR|🇰🇷"
-    tolerance: 50
-    interval: 3600
-    lazy: true
-    hidden: true
-
-  - name: "KR-BALANCE"
-    type: load-balance
-    strategy: round-robin
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Korea.png
-    url: "https://cp.cloudflare.com/generate_204"
-    include-all: true
-    filter: "韩国|韩|KR|🇰🇷"
-    interval: 3600
-    lazy: true
-    hidden: true
-
-  - name: "KR"
-    type: select
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Korea.png
-    include-all: true
-    filter: "韩国|韩|KR|🇰🇷"
-    proxies:
-      - KR-AUTO
-      - KR-BALANCE
-
-  - name: "SG-AUTO"
-    type: url-test
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png
-    url: "https://cp.cloudflare.com/generate_204"
-    include-all: true
-    filter: "新加坡|狮|SG|🇸🇬"
-    tolerance: 50
-    interval: 3600
-    lazy: true
-    hidden: true
-
-  - name: "SG-BALANCE"
-    type: load-balance
-    strategy: round-robin
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png
-    url: "https://cp.cloudflare.com/generate_204"
-    include-all: true
-    filter: "新加坡|狮|SG|🇸🇬"
-    interval: 3600
-    lazy: true
-    hidden: true
-
-  - name: "SG"
-    type: select
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png
-    include-all: true
-    filter: "新加坡|狮|SG|🇸🇬"
-    proxies:
-      - SG-AUTO
-      - SG-BALANCE
-
-  - name: "US-AUTO"
-    type: url-test
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png
-    url: "https://cp.cloudflare.com/generate_204"
-    include-all: true
-    filter: "美国|美|US|🇺🇸|(?i)States"
-    tolerance: 50
-    interval: 3600
-    lazy: true
-    hidden: true
-
-  - name: "US-BALANCE"
-    type: load-balance
-    strategy: round-robin
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png
-    url: "https://cp.cloudflare.com/generate_204"
-    include-all: true
-    filter: "美国|美|US|🇺🇸|(?i)States"
-    interval: 3600
-    lazy: true
-    hidden: true
-
-  - name: "US"
-    type: select
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png
-    include-all: true
-    filter: "美国|美|US|🇺🇸|(?i)States"
-    proxies:
-      - US-AUTO
-      - US-BALANCE
-
-# [本地规则]（RULE-SET 引用改为 meta-rules-dat 提供的分类）
+# 分流规则
 rules:
-  - DOMAIN-SUFFIX,gwdang.com,DIRECT
-  - DOMAIN-SUFFIX,cloudflare.com,Global-Media
-  - DOMAIN-SUFFIX,freedom.gov,Global-Media
-  - RULE-SET,Unbreak,DIRECT
-  - RULE-SET,AdBlock,REJECT
+  # 局域网 / 保留地址，直连
+  - RULE-SET,Private,DIRECT
+  - RULE-SET,PrivateIP,DIRECT,no-resolve
+  # 电报
+  - RULE-SET,TM,TM
+  - RULE-SET,Telegram,TM
+  - RULE-SET,TelegramIP,TM,no-resolve
+  # TikTok（放在 SocialMedia 之前，避免被通用社交规则先匹配走）
+  - RULE-SET,TikTok,TIKTOK
+  # 社交媒体
+  - RULE-SET,SocialMedia,SOCIAL
+  - RULE-SET,SocialMediaIP,SOCIAL,no-resolve
+  # AI 服务
   - RULE-SET,AI,AI
-  - RULE-SET,TikTok,TikTok
-  - RULE-SET,Microsoft,Microsoft
-  - RULE-SET,Emby,Emby
-  - RULE-SET,Spotify,Spotify
-  - RULE-SET,Steam,Gaming
-  - RULE-SET,bilibili,bilibili
-  - RULE-SET,CN-Media,CN-Media
-  - RULE-SET,Global-Media,Global-Media
-  - RULE-SET,Global,Global
-  - RULE-SET,Apple,Apple
-  - GEOSITE,private,DIRECT
-  - RULE-SET,ChinaDirect,DIRECT
-  - MATCH,Final
+  - RULE-SET,AIIP,AI,no-resolve
+  # 开发者服务
+  - RULE-SET,Dev,DEV
+  # Spotify（放在 Streaming 之前，避免被通用流媒体规则先匹配走）
+  - RULE-SET,Spotify,SPOTIFY
+  # 流媒体
+  - RULE-SET,Streaming,STREAMING
+  - RULE-SET,StreamingIP,STREAMING,no-resolve
+  # 谷歌 / 苹果平台
+  - RULE-SET,Google,GOOGLE
+  - RULE-SET,GoogleIP,GOOGLE,no-resolve
+  - RULE-SET,Apple,APPLE
+  # 需代理的海外域名
+  - RULE-SET,Proxy,OUTCN
+  - RULE-SET,ProxyIP,OUTCN,no-resolve
+  # 国内域名，直连
+  - RULE-SET,China,CN
+  - RULE-SET,ChinaIP,CN,no-resolve
+  # 兜底规则
+  - MATCH,MATCH
 
-# [远程规则]（除 Unbreak / Emby 无对应分类保留原源外，其余均改为 MetaCubeX/meta-rules-dat）
+# 规则集来源
 rule-providers:
-  # 无 meta-rules-dat 对应分类，保留原自定义规则源
-  Unbreak:
-    behavior: classical
-    interval: 86400
-    type: http
-    path: ./Ruleset/Unbreak.yaml
-    url: https://raw.githubusercontent.com/Centralmatrix3/Matrix-io/master/Clash/Ruleset/Unbreak.yaml
-
-  Emby:
-    behavior: domain
-    interval: 86400
-    type: http
-    format: mrs
-    path: ./Ruleset/meta/Emby.mrs"
-    url: "https://fastly.jsdelivr.net/gh/666OS/rules@release/mihomo/domain/Emby.mrs"
-
-  # 以下改为 meta-rules-dat (meta 分支, .mrs 格式)
-  AdBlock:
-    behavior: domain
-    interval: 86400
-    type: http
-    format: mrs
-    path: ./Ruleset/meta/category-ads-all.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ads-all.mrs"
-
-  AI:
-    behavior: domain
-    interval: 86400
-    type: http
-    format: mrs
-    path: ./Ruleset/meta/openai.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/openai.mrs"
-
-  TikTok:
-    behavior: domain
-    interval: 86400
-    type: http
-    format: mrs
-    path: ./Ruleset/meta/tiktok.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/tiktok.mrs"
-
-  Microsoft:
-    behavior: domain
-    interval: 86400
-    type: http
-    format: mrs
-    path: ./Ruleset/meta/microsoft.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.mrs"
-
-  Spotify:
-    behavior: domain
-    interval: 86400
-    type: http
-    format: mrs
-    path: ./Ruleset/meta/spotify.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/spotify.mrs"
-
-  Steam:
-    behavior: domain
-    interval: 86400
-    type: http
-    format: mrs
-    path: ./Ruleset/meta/steam.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/steam.mrs"
-
-  bilibili:
-    behavior: domain
-    interval: 86400
-    type: http
-    format: mrs
-    path: ./Ruleset/meta/bilibili.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/bilibili.mrs"
-
-  # ⚠️ 近似替代，无法与 ios_rule_script 的 ChinaMedia 完全对应，建议自行核对
-  CN-Media:
-    behavior: domain
-    interval: 86400
-    type: http
-    format: mrs
-    path: ./Ruleset/meta/category-media-cn.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-media-cn.mrs"
-
-  # ⚠️ 近似替代，meta-rules-dat 无聚合的 "全球媒体" 分类，此处用 netflix 代替，
-  # 如需覆盖 Disney+/HBO 等更多流媒体，需自行叠加其它分类的 RULE-SET
-  Global-Media:
-    behavior: domain
-    interval: 86400
-    type: http
-    format: mrs
-    path: ./Ruleset/meta/netflix.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netflix.mrs"
-
-  Global:
-    behavior: domain
-    interval: 86400
-    type: http
-    format: mrs
-    path: ./Ruleset/meta/geolocation-not-cn.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs"
-
-  Apple:
-    behavior: domain
-    interval: 86400
-    type: http
-    format: mrs
-    path: ./Ruleset/meta/apple.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.mrs"
-
-  ChinaDirect:
-    behavior: ipcidr
-    interval: 86400
-    type: http
-    format: mrs
-    path: ./Ruleset/meta/cn-ip.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs"
+  Private:        { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/Private.mrs }
+  Apple:          { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/Apple.mrs }
+  Telegram:       { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/Telegram.mrs }
+  TM:             { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/TM.mrs }
+  TikTok:         { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/TikTok.mrs }
+  SocialMedia:    { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/SocialMedia.mrs }
+  AI:             { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/AI.mrs }
+  Dev:            { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/Dev.mrs }
+  Spotify:        { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/Spotify.mrs }
+  YouTube:        { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/YouTube.mrs }
+  Netflix:        { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/Netflix.mrs }
+  Disney:         { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/Disney.mrs }
+  Streaming:      { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/Streaming.mrs }
+  Google:         { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/Google.mrs }
+  Proxy:          { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/Proxy.mrs }
+  China:          { <<: *rule-set-domain, url: https://github.com/666OS/rules/raw/release/mihomo/domain/China.mrs }
+  PrivateIP:      { <<: *rule-set-ipcidr, url: https://github.com/666OS/rules/raw/release/mihomo/ip/Private.mrs }
+  TelegramIP:     { <<: *rule-set-ipcidr, url: https://github.com/666OS/rules/raw/release/mihomo/ip/Telegram.mrs }
+  SocialMediaIP:  { <<: *rule-set-ipcidr, url: https://github.com/666OS/rules/raw/release/mihomo/ip/SocialMedia.mrs }
+  AIIP:           { <<: *rule-set-ipcidr, url: https://github.com/666OS/rules/raw/release/mihomo/ip/AI.mrs }
+  NetflixIP:      { <<: *rule-set-ipcidr, url: https://github.com/666OS/rules/raw/release/mihomo/ip/Netflix.mrs }
+  StreamingIP:    { <<: *rule-set-ipcidr, url: https://github.com/666OS/rules/raw/release/mihomo/ip/Streaming.mrs }
+  ProxyIP:        { <<: *rule-set-ipcidr, url: https://github.com/666OS/rules/raw/release/mihomo/ip/Proxy.mrs }
+  ChinaIP:        { <<: *rule-set-ipcidr, url: https://github.com/666OS/rules/raw/release/mihomo/ip/China.mrs }
+  GoogleIP:       { <<: *rule-set-ipcidr, url: https://github.com/666OS/rules/raw/release/mihomo/ip/Google.mrs }
