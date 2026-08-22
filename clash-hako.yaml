@@ -107,7 +107,6 @@ proxy-providers:
   subscribe:
     type: http
     url: "https://airport Subscription Link"
-    filter: '^((?!Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量).)+$'
     path: ./Server/subscribe.yaml
     interval: 86400
     health-check:
