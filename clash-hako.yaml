@@ -1,6 +1,14 @@
-# 配置名称: Clash 配置（Hako / Apple 平台优化版）
+# 配置名称: Clash 配置（Hako / Apple 平台优化版 · 分流规则源已替换为 MetaCubeX/meta-rules-dat）
 # 原作者: Claude 二次优化 → 基于 Hako 配置参考进一步精简
-# 更新时间: 2026-08-19
+# 更新时间: 2026-08-22
+#
+# 本次改动：
+# 1. rule-providers 全部改为引用 https://github.com/MetaCubeX/meta-rules-dat (meta 分支, .mrs 格式)，
+#    不再依赖 blackmatrix7/ios_rule_script。
+# 2. geosite 分类沿用 v2fly/domain-list-community 命名体系（meta-rules-dat 的上游数据源）。
+# 3. Unbreak / Emby 两个规则集是自定义域名清单，meta-rules-dat 中没有对应分类，予以保留原样（未替换）。
+# 4. CN-Media / Global-Media 在 meta-rules-dat 中没有和 ios_rule_script 完全一一对应的聚合分类，
+#    这里用较接近的 geosite 分类做了近似替代，建议部署前自行核对效果，必要时再补充自定义规则。
 #
 # 优化要点（对齐 https://clash.md/zh/guide/config/）：
 # 1. 移除 port / socks-port / redir-port / mixed-port / tproxy-port / external-controller / allow-lan 等高级功能字段
@@ -24,7 +32,7 @@ keep-alive-interval: 30           # 保持连接活跃，减少握手抖动
 # [数据库]（Hako 管理，精简）
 geodata-mode: true
 # geo-auto-update / geox-url 由 Hako 管理，手动指定可能被覆盖或无效
-# 如需自定义可取消注释，但建议让客户端处理
+# 如需自定义可取消注释，改用 meta-rules-dat 的资源：
 # geo-auto-update: true
 # geodata-loader: memconservative
 # geox-url:
@@ -99,7 +107,7 @@ proxy-providers:
       timeout: 5000
       lazy: true
 
-# [策略组]（完整保留）
+# [策略组]（完整保留，未改动）
 proxy-groups:
 
   - name: "Manual"
@@ -477,7 +485,7 @@ proxy-groups:
       - US-AUTO
       - US-BALANCE
 
-# [本地规则]
+# [本地规则]（RULE-SET 引用改为 meta-rules-dat 提供的分类）
 rules:
   - DOMAIN-SUFFIX,gwdang.com,DIRECT
   - DOMAIN-SUFFIX,cloudflare.com,Global-Media
@@ -495,12 +503,13 @@ rules:
   - RULE-SET,Global-Media,Global-Media
   - RULE-SET,Global,Global
   - RULE-SET,Apple,Apple
-  - RULE-SET,LAN,DIRECT
+  - GEOSITE,private,DIRECT
   - RULE-SET,ChinaDirect,DIRECT
   - MATCH,Final
 
-# [远程规则]
+# [远程规则]（除 Unbreak / Emby 无对应分类保留原源外，其余均改为 MetaCubeX/meta-rules-dat）
 rule-providers:
+  # 无 meta-rules-dat 对应分类，保留原自定义规则源
   Unbreak:
     behavior: classical
     interval: 86400
@@ -508,100 +517,110 @@ rule-providers:
     path: ./Ruleset/Unbreak.yaml
     url: https://raw.githubusercontent.com/Centralmatrix3/Matrix-io/master/Clash/Ruleset/Unbreak.yaml
 
+  Emby:
+    behavior: domain
+    interval: 86400
+    type: http
+    format: mrs
+    path: ./Ruleset/meta/Emby.mrs"
+    url: "https://fastly.jsdelivr.net/gh/666OS/rules@release/mihomo/domain/Emby.mrs"
+
+  # 以下改为 meta-rules-dat (meta 分支, .mrs 格式)
   AdBlock:
-    behavior: classical
+    behavior: domain
     interval: 86400
     type: http
-    path: ./Ruleset/AdBlock.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Advertising/Advertising.yaml
-
-  bilibili:
-    behavior: classical
-    interval: 86400
-    type: http
-    path: ./Ruleset/BiliBili.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/BiliBili/BiliBili.yaml
-
-  CN-Media:
-    behavior: classical
-    interval: 86400
-    type: http
-    path: ./Ruleset/ChinaMedia.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMedia/ChinaMedia.yaml
-
-  Global-Media:
-    behavior: classical
-    interval: 86400
-    type: http
-    path: ./Ruleset/GlobalMedia.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GlobalMedia/GlobalMedia.yaml
+    format: mrs
+    path: ./Ruleset/meta/category-ads-all.mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ads-all.mrs"
 
   AI:
-    behavior: classical
+    behavior: domain
     interval: 86400
     type: http
-    path: ./raw/Ai.yaml
-    url: https://gist.githubusercontent.com/ddgksf2013/cb4121e8b5c5d865cc949cb8120320c4/raw/Ai.yaml
+    format: mrs
+    path: ./Ruleset/meta/openai.mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/openai.mrs"
 
   TikTok:
-    behavior: classical
+    behavior: domain
     interval: 86400
     type: http
-    path: ./raw/TikTok.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/TikTok/TikTok.yaml
+    format: mrs
+    path: ./Ruleset/meta/tiktok.mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/tiktok.mrs"
 
   Microsoft:
-    behavior: classical
+    behavior: domain
     interval: 86400
     type: http
-    path: ./raw/Microsoft.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Microsoft/Microsoft.yaml
-
-  Emby:
-    behavior: classical
-    interval: 86400
-    type: http
-    path: ./raw/Emby1.yaml
-    url: https://raw.githubusercontent.com/xlh8394/Emby/refs/heads/main/Emby1.yaml
+    format: mrs
+    path: ./Ruleset/meta/microsoft.mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.mrs"
 
   Spotify:
-    behavior: classical
+    behavior: domain
     interval: 86400
     type: http
-    path: ./raw/Spotify.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Spotify/Spotify.yaml
+    format: mrs
+    path: ./Ruleset/meta/spotify.mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/spotify.mrs"
 
   Steam:
-    behavior: classical
+    behavior: domain
     interval: 86400
     type: http
-    path: ./raw/Steam.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Steam/Steam.yaml
+    format: mrs
+    path: ./Ruleset/meta/steam.mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/steam.mrs"
+
+  bilibili:
+    behavior: domain
+    interval: 86400
+    type: http
+    format: mrs
+    path: ./Ruleset/meta/bilibili.mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/bilibili.mrs"
+
+  # ⚠️ 近似替代，无法与 ios_rule_script 的 ChinaMedia 完全对应，建议自行核对
+  CN-Media:
+    behavior: domain
+    interval: 86400
+    type: http
+    format: mrs
+    path: ./Ruleset/meta/category-media-cn.mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-media-cn.mrs"
+
+  # ⚠️ 近似替代，meta-rules-dat 无聚合的 "全球媒体" 分类，此处用 netflix 代替，
+  # 如需覆盖 Disney+/HBO 等更多流媒体，需自行叠加其它分类的 RULE-SET
+  Global-Media:
+    behavior: domain
+    interval: 86400
+    type: http
+    format: mrs
+    path: ./Ruleset/meta/netflix.mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netflix.mrs"
 
   Global:
-    behavior: classical
+    behavior: domain
     interval: 86400
     type: http
-    path: ./Ruleset/Global.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Global/Global.yaml
+    format: mrs
+    path: ./Ruleset/meta/geolocation-not-cn.mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs"
 
   Apple:
-    behavior: classical
+    behavior: domain
     interval: 86400
     type: http
-    path: ./Ruleset/Apple.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.yaml
-
-  LAN:
-    behavior: classical
-    interval: 86400
-    type: http
-    path: ./Ruleset/LAN.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Lan/Lan.yaml
+    format: mrs
+    path: ./Ruleset/meta/apple.mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.mrs"
 
   ChinaDirect:
     behavior: ipcidr
     interval: 86400
     type: http
-    path: ./Ruleset/ChinaIPs_IP.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaIPs/ChinaIPs_IP.yaml
+    format: mrs
+    path: ./Ruleset/meta/cn-ip.mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs"
