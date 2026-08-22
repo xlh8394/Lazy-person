@@ -1,18 +1,10 @@
-# 配置名称: Clash 配置（Mihomo 内核优化版 · 适配 Hako / Sparkle 客户端）
-# 配置作者: 原配置 + Grok 参考优化
+# 配置名称: Clash 配置（Mihomo 内核优化版 · iOS Sparkle 客户端）
+# 配置作者: 原配置 + Grok 按 clash.md/zh/guide/config/ iOS 参考优化
 # 更新时间: 2026-08-22
 #
-# 本次优化要点（详见对应位置注释）：
-# 1. 所有 Hako 不支持/受管理字段已移除或注释（参考字段支持状态）
-# 2. DNS 全面对齐参考：新增 respect-rules / proxy-server-nameserver / direct-nameserver，防死锁/泄漏
-# 3. Geo 数据保持你原有的方案 + 最佳实践模板推荐（Hako 平台自动管理）
-# 4. sniffer.skip-domain 补充 Apple 常见误判
-# 5. 端口/TUN/Sniffer 可由 Sparkle GUI 覆写，裸核运行时仍保留你原有的设置
-#
-
 # [端口设置]
-# Sparkle GUI 开启接管后会自动覆写，裸核运行时可保留
-# Hako Apple Packet Tunnel 不支持 redir-port / tproxy-port / routing-mark / interface-name
+# iOS Sparkle GUI 开启接管后会自动覆写，裸核运行时可保留
+# Hako iOS 不支持 redir-port / tproxy-port / routing-mark / interface-name
 port: 7890
 socks-port: 7891
 # redir-port: 7892          # 不支持，已移除
@@ -20,8 +12,8 @@ socks-port: 7891
 mixed-port: 7893
 
 # [通用设置]
-external-controller: 0.0.0.0:9090
-# geodata-loader: memconservative    # Hako Apple 平台为受管理字段，会自动覆盖（推荐用最佳实践）
+external-controller: 0.0.0.0:9090          # 高级功能（iOS 支持）
+# geodata-loader: memconservative    # iOS 受管理 / 有限制，会自动覆盖（推荐用最佳实践）
 # geodata-mode: true                 # 同上，受管理字段
 geo-auto-update: true
 geo-update-interval: 72
@@ -37,12 +29,12 @@ ipv6: false
 mode: rule
 log-level: warning
 tcp-concurrent: true
-# find-process-mode: off              # Hako Apple 不支持，已移除
+# find-process-mode: off              # iOS 不支持，已移除
 global-client-fingerprint: chrome
 keep-alive-interval: 30
 
 # [数据库]
-geodata-mode: true                  # Hako 受管理字段，保持原值
+geodata-mode: true                  # iOS 受管理 / 有限制，保持原值
 geo-auto-update: true
 geo-update-interval: 72
 geox-url: { ... }                   # 同上
@@ -52,7 +44,7 @@ dns:
   enable: true
   ipv6: false
   prefer-h3: false
-  respect-rules: true                # 新增：DNS 请求也遵循分流规则，防死锁/泄漏
+  respect-rules: true                # 支持：DNS 请求也遵循分流规则，防死锁/泄漏
   listen: 0.0.0.0:1053
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
@@ -64,10 +56,10 @@ dns:
   nameserver:
     - https://doh.pub/dns-query
     - https://dns.alidns.com/dns-query
-  proxy-server-nameserver:           # 新增：专用国内 DNS，防节点自身域名解析死锁
+  proxy-server-nameserver:           # 支持：专用国内 DNS，防节点自身域名解析死锁
     - https://223.5.5.5/dns-query
     - https://dns.alidns.com/dns-query
-  direct-nameserver:                 # 新增：DIRECT 时用国内 DNS 拿最优 CDN
+  direct-nameserver:                 # 支持：DIRECT 时用国内 DNS 拿最优 CDN
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
   direct-nameserver-follow-policy: false
@@ -114,7 +106,7 @@ sniffer:
 proxy-providers:
   subscribe:
     type: http
-    url: " https://Please enter your subscription address"
+    url: " https://airport Subscription Link"
     path: ./Server/subscribe.yaml
     interval: 86400
     health-check:
