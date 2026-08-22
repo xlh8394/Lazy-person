@@ -106,7 +106,7 @@ sniffer:
 proxy-providers:
   subscribe:
     type: http
-    url: " https://airport Subscription Link"
+    url: "https://airport Subscription Link"
     path: ./Server/subscribe.yaml
     interval: 86400
     health-check:
