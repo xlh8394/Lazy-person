@@ -1,0 +1,178 @@
+# >>=====================================<<
+# >>=====================================<<
+# ------------------------------------
+
+# 锚点定义
+x-base-provider: &base-provider {type: http, interval: 86400, proxy: DIRECT, health-check: {enable: true, url: 'https://www.google.com/generate_204', interval: 300}, filter: '^(?!.*(群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author))'}
+
+x-url-test:        &url-test        { type: url-test, url: "https://www.gstatic.com/generate_204", interval: 300, empty-fallback: REJECT, include-all: true, hidden: true, tolerance: 50 }
+x-fallback:        &fallback        { type: fallback, url: "https://www.gstatic.com/generate_204", interval: 300, empty-fallback: REJECT }
+
+# 各地区节点筛选正则
+x-filter-hk:    &filter-hk    "^(?i)(?=.*(香港|港深|深港|沪港|广港|陆港|(?<![a-zA-Z])(hk|hkg)(?![a-zA-Z])|hongkong|hong kong|🇭🇰))(?!.*(排除)).*$"
+x-filter-tw:    &filter-tw    "^(?i)(?=.*(台湾|台北|台中|台南|台东|湾湾|(?<![a-zA-Z])(tw|tpe|khh|tsa)(?![a-zA-Z])|taiwan|taipei|🇹🇼|🇼🇸))(?!.*(排除)).*$"
+x-filter-jp:    &filter-jp    "^(?i)(?=.*(日本|东京|大阪|京都|神奈川|琦玉|(?<![a-zA-Z])(jp|nrt|hnd|kix|cts|fuk)(?![a-zA-Z])|japan|tokyo|🇯🇵))(?!.*(排除)).*$"
+x-filter-sg:    &filter-sg    "^(?i)(?=.*(新加坡|坡县|坡|狮城|(?<![a-zA-Z])(sg|sin|xsp)(?![a-zA-Z])|singapore|🇸🇬))(?!.*(排除)).*$"
+x-filter-kr:    &filter-kr    "^(?i)(?=.*(韩国|韓國|首尔|首爾|南朝鲜|(?<![a-zA-Z])(kr|icn|gmp|pus)(?![a-zA-Z])|korea|seoul|🇰🇷))(?!.*(排除)).*$"
+x-filter-us:    &filter-us    "^(?i)(?=.*(美国|美东|美西|美中|美南|美港|美日|中美|美专|(?<![a-zA-Z])(us|usa|lax|sfo|jfk|sjc)(?![a-zA-Z])|america|united states|🇺🇸))(?!.*(排除)).*$"
+
+# 各类优先级列表（回退顺序）
+x-oversea:      &oversea      [FALLBACK, MANUAL, HK, TW, JP, SG, KR, US, DIRECT]
+x-direct:       &direct       [DIRECT, FALLBACK, MANUAL, HK, TW, JP, SG, KR, US]
+x-us-first:     &us-first     [US, FALLBACK, MANUAL, HK, TW, JP, SG, KR, DIRECT]
+x-hk-first:     &hk-first     [HK, FALLBACK, MANUAL, TW, JP, SG, KR, US, DIRECT]
+x-sg-first:     &sg-first     [SG, FALLBACK, MANUAL, HK, TW, JP, KR, US, DIRECT]
+x-jp-first:     &jp-first     [JP, FALLBACK, MANUAL, HK, TW, SG, KR, US, DIRECT]
+
+x-rule-set-classical: &rule-set-classical { type: http, behavior: classical, format: yaml, interval: 86400 }
+
+# 机场订阅（在此处填入你自己的订阅地址）
+proxy-providers:
+ Primary: {<<: *base-provider, url: 'YOUR_PRIMARY_URL', override: {additional-prefix: '[P] '}}
+  # Backup:   {<<: *base-provider, url: 'YOUR_BACKUP_URL',  override: {additional-prefix: '[B] '}}
+
+# 自定义节点（可手动添加，示例如下）
+proxies:
+  # - name: "ss1"
+  #   type: ss
+  #   server: server
+  #   port: 443
+  #   cipher: aes-128-gcm
+  #   password: password
+
+# 常规设置
+mode: rule
+port: 7890
+socks-port: 7891
+mixed-port: 7893
+ipv6: false
+allow-lan: false
+unified-delay: true
+tcp-concurrent: true
+log-level: silent
+bind-address: '*'
+find-process-mode: 'always'
+keep-alive-interval: 15
+keep-alive-idle: 600
+# 安全提醒：请换成你自己独立的强密码，不要沿用模板默认值。
+# 以下为本次生成的随机占位示例：
+authentication: [mihomo:faGGFbQxepURWfd89CdR]
+skip-auth-prefixes: [127.0.0.1/8, '::1/128']
+experimental: {quic-go-disable-gso: true}
+
+# 控制面板 / 仪表盘
+external-ui-url: https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip
+external-ui-name: zashboard
+external-ui: ui
+external-controller: 127.0.0.1:9090
+# 安全提醒：同上，这是控制面的访问密钥，务必替换为你自己的强密钥。
+secret: DOBGfLodKpg0Smk1BKVclU8S
+profile: {store-selected: true, store-fake-ip: true}
+
+# 域名/协议嗅探
+sniffer:
+  enable: true
+  sniff:
+    HTTP:  {ports: [80, 8080-8880], override-destination: true}
+    TLS:   {ports: [443, 8443]}
+    QUIC:  {ports: [443, 8443]}
+  skip-domain: ["Mijia Cloud", "+.push.apple.com"]
+
+# TUN 模式
+tun:
+  enable: false
+  stack: mixed
+  dns-hijack: ["any:53", "tcp://any:53"]
+  auto-route: true
+  auto-detect-interface: true
+
+# DNS 设置
+dns:
+  enable: true
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver: [119.29.29.29, 180.184.1.1, 223.5.5.5]
+  nameserver: [https://dns.alidns.com/dns-query, https://doh.pub/dns-query]
+  fake-ip-filter: ["+.lan", "*.local", "+.gstatic.com", "+.miwifi.com", "+.market.xiaomi.com", "+.push.apple.com"]
+
+# 策略组
+proxy-groups:
+  # 分流类
+  - { name: TM,        type: select, proxies: *sg-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Telegram_X.png }
+  - { name: SOCIAL,    type: select, proxies: *us-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Twitter.png }
+  - { name: TIKTOK,    type: select, proxies: *us-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/TikTok.png }
+  - { name: AI,        type: select, proxies: *us-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/AI.png }
+  - { name: DEV,       type: select, proxies: *us-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/GitHub.png }
+  - { name: SPOTIFY,   type: select, proxies: *us-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Spotify.png }
+  - { name: STREAMING, type: select, proxies: *us-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Streaming.png }
+  - { name: GOOGLE,    type: select, proxies: *us-first, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Google_Search.png }
+  - { name: APPLE,     type: select, proxies: *direct, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Apple_1.png }
+  - { name: OUTCN,     type: select, proxies: *oversea, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Global.png }
+  - { name: CN,        type: select, proxies: *direct, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/China.png }
+  - { name: MATCH,     type: select, proxies: *oversea, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Final.png }
+
+  # 自动回退
+  - { name: FALLBACK, <<: *fallback, proxies: [US, JP, SG, KR, HK, TW], icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/ULB.png }
+
+  # 手动选择（全部节点）
+  - { name: MANUAL,    type: select, include-all: true, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Clubhouse.png }
+
+  # 各地区延迟测速
+  - { name: HK, <<: *url-test, filter: *filter-hk, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Hong_Kong.png }
+  - { name: TW, <<: *url-test, filter: *filter-tw, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Taiwan.png }
+  - { name: JP, <<: *url-test, filter: *filter-jp, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Japan.png }
+  - { name: SG, <<: *url-test, filter: *filter-sg, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Singapore.png }
+  - { name: KR, <<: *url-test, filter: *filter-kr, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/Korea.png }
+  - { name: US, <<: *url-test, filter: *filter-us, icon: https://github.com/Koolson/Qure/raw/master/IconSet/Color/United_States.png }
+
+# 分流规则
+rules:
+  # 局域网 / 保留地址，直连
+  - RULE-SET,Private,DIRECT
+  # 电报（TM 组直接复用 Telegram 规则集，无需再单独维护一份 TM）
+  - RULE-SET,Telegram,TM
+  # TikTok（放在社交规则之前，避免被更宽泛的规则先匹配走）
+  - RULE-SET,TikTok,TIKTOK
+  # 社交媒体（按需增删具体服务）
+  - RULE-SET,Twitter,SOCIAL
+  - RULE-SET,Facebook,SOCIAL
+  - RULE-SET,Instagram,SOCIAL
+  # AI 服务（该仓库目前主要覆盖 OpenAI/ChatGPT，其余 AI 服务需自行补充规则集）
+  - RULE-SET,OpenAI,AI
+  # 开发者服务（该仓库目前主要覆盖 GitHub，其余开发者服务需自行补充规则集）
+  - RULE-SET,GitHub,DEV
+  # Spotify（放在流媒体之前，避免被更宽泛的规则先匹配走）
+  - RULE-SET,Spotify,SPOTIFY
+  # 流媒体（按需增删具体服务）
+  - RULE-SET,Netflix,STREAMING
+  - RULE-SET,YouTube,STREAMING
+  - RULE-SET,Disney,STREAMING
+  # 谷歌 / 苹果平台
+  - RULE-SET,Google,GOOGLE
+  - RULE-SET,Apple,APPLE
+  # 需代理的海外域名
+  - RULE-SET,Proxy,OUTCN
+  # 国内域名，直连
+  - RULE-SET,China,CN
+  # 兜底规则
+  - MATCH,MATCH
+
+# 规则集来源：blackmatrix7/ios_rule_script
+rule-providers:
+  Private:   { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Lan/Lan.yaml,             path: ./ruleset/Private.yaml }
+  Apple:     { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.yaml,          path: ./ruleset/Apple.yaml }
+  Telegram:  { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Telegram/Telegram.yaml,    path: ./ruleset/Telegram.yaml }
+  TikTok:    { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/TikTok/TikTok.yaml,        path: ./ruleset/TikTok.yaml }
+  Twitter:   { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Twitter/Twitter.yaml,      path: ./ruleset/Twitter.yaml }
+  Facebook:  { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Facebook/Facebook.yaml,    path: ./ruleset/Facebook.yaml }
+  Instagram: { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Instagram/Instagram.yaml,  path: ./ruleset/Instagram.yaml }
+  OpenAI:    { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/OpenAI/OpenAI.yaml,        path: ./ruleset/OpenAI.yaml }
+  GitHub:    { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GitHub/GitHub.yaml,        path: ./ruleset/GitHub.yaml }
+  Spotify:   { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Spotify/Spotify.yaml,      path: ./ruleset/Spotify.yaml }
+  Netflix:   { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Netflix/Netflix.yaml,      path: ./ruleset/Netflix.yaml }
+  YouTube:   { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/YouTube/YouTube.yaml,      path: ./ruleset/YouTube.yaml }
+  Disney:    { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Disney/Disney.yaml,        path: ./ruleset/Disney.yaml }
+  Google:    { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Google/Google.yaml,        path: ./ruleset/Google.yaml }
+  Proxy:     { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Proxy/Proxy.yaml,          path: ./ruleset/Proxy.yaml }
+  China:     { <<: *rule-set-classical, url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax.yaml,    path: ./ruleset/China.yaml }
