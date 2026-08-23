@@ -81,20 +81,16 @@ sniffer:
 proxy-providers:
   subscribe:
     type: http
-    url: "https://Your.subscription"          # 请替换为真实订阅
+    url: "https://Your subscription"          # 请替换为真实订阅
     path: ./Server/subscribe.yaml
     interval: 86400
+    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     health-check:
       enable: true
       url: https://cp.cloudflare.com/generate_204
       interval: 3600
       timeout: 5000
       lazy: true
-
-# [公共变量]（下方所有 include-all 组统一使用同一份 exclude-filter，
-#  用于剔除订阅方注入的"剩余流量/到期时间/官网地址"等信息展示类伪节点，
-#  按你的订阅商实际提示文案增删关键词即可）
-# exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
 
 # [策略组]
 proxy-groups:
@@ -105,7 +101,6 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "^"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     interval: 3600
     lazy: true
 
@@ -285,7 +280,6 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "^"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     tolerance: 50
     interval: 3600
     lazy: true
@@ -296,7 +290,6 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "香港|港|🇭🇰|HK|(?i)Hong"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     tolerance: 50
     interval: 3600
     lazy: true
@@ -309,7 +302,6 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "香港|港|🇭🇰|HK|(?i)Hong"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     interval: 3600
     lazy: true
     hidden: true
@@ -319,7 +311,6 @@ proxy-groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png
     include-all: true
     filter: "香港|港|🇭🇰|HK|(?i)Hong"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     proxies:
       - HK-AUTO
       - HK-BALANCE
@@ -330,7 +321,6 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "台湾|台|TW|🇹🇼"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     tolerance: 50
     interval: 3600
     lazy: true
@@ -343,7 +333,6 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "台湾|台|TW|🇹🇼"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     interval: 3600
     lazy: true
     hidden: true
@@ -353,7 +342,6 @@ proxy-groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/China.png
     include-all: true
     filter: "台湾|台|TW|🇹🇼"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     proxies:
       - TW-AUTO
       - TW-BALANCE
@@ -364,7 +352,6 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "日本|日|JP|🇯🇵"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     tolerance: 50
     interval: 3600
     lazy: true
@@ -377,7 +364,6 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "日本|日|JP|🇯🇵"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     interval: 3600
     lazy: true
     hidden: true
@@ -387,7 +373,6 @@ proxy-groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png
     include-all: true
     filter: "日本|日|JP|🇯🇵"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     proxies:
       - JP-AUTO
       - JP-BALANCE
@@ -398,7 +383,6 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "韩国|韩|KR|🇰🇷"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     tolerance: 50
     interval: 3600
     lazy: true
@@ -411,7 +395,6 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "韩国|韩|KR|🇰🇷"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     interval: 3600
     lazy: true
     hidden: true
@@ -421,7 +404,6 @@ proxy-groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Korea.png
     include-all: true
     filter: "韩国|韩|KR|🇰🇷"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     proxies:
       - KR-AUTO
       - KR-BALANCE
@@ -432,7 +414,6 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "新加坡|狮|SG|🇸🇬"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     tolerance: 50
     interval: 3600
     lazy: true
@@ -445,7 +426,6 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "新加坡|狮|SG|🇸🇬"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     interval: 3600
     lazy: true
     hidden: true
@@ -455,7 +435,6 @@ proxy-groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png
     include-all: true
     filter: "新加坡|狮|SG|🇸🇬"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     proxies:
       - SG-AUTO
       - SG-BALANCE
@@ -466,7 +445,6 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "美国|美|US|🇺🇸|(?i)States"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     tolerance: 50
     interval: 3600
     lazy: true
@@ -479,7 +457,6 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "美国|美|US|🇺🇸|(?i)States"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     interval: 3600
     lazy: true
     hidden: true
@@ -489,7 +466,6 @@ proxy-groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png
     include-all: true
     filter: "美国|美|US|🇺🇸|(?i)States"
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     proxies:
       - US-AUTO
       - US-BALANCE
