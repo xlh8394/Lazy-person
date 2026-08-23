@@ -81,7 +81,7 @@ sniffer:
 proxy-providers:
   subscribe:
     type: http
-    url: "https://Your subscription"          # 请替换为真实订阅
+    url: "https://Your.subscription"          # 请替换为真实订阅
     path: ./Server/subscribe.yaml
     interval: 86400
     health-check:
