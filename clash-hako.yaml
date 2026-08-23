@@ -1,6 +1,6 @@
 # 配置名称: Clash 配置（Hako / Apple 平台优化版）
 # 原作者: Claude 二次优化 → 基于 Hako 配置参考进一步精简
-# 更新时间: 2026-08-23
+# 更新时间: 2026-08-23（补充 exclude-filter，过滤订阅信息类伪节点）
 
 # [通用设置]（推荐保留）
 mode: rule
@@ -84,7 +84,6 @@ proxy-providers:
     url: "https://Your subscription"          # 请替换为真实订阅
     path: ./Server/subscribe.yaml
     interval: 86400
-    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     health-check:
       enable: true
       url: https://cp.cloudflare.com/generate_204
@@ -101,6 +100,7 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "^"
+    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     interval: 3600
     lazy: true
 
@@ -280,9 +280,18 @@ proxy-groups:
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "^"
+    exclude-filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
     tolerance: 50
     interval: 3600
     lazy: true
+
+  # 专门"收编"订阅方注入的信息类伪节点（剩余流量/到期时间等），
+  # 让它们从 Hako 的"未入组"列表里消失；hidden: true 让这个组本身也不在界面显示
+  - name: "Info-Nodes"
+    type: select
+    include-all: true
+    filter: "Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"
+    hidden: true
 
   - name: "HK-AUTO"
     type: url-test
