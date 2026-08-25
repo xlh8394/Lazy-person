@@ -50,7 +50,7 @@
       "tag": "1",
       "type": "remote",
       "url": "你的订阅连接",
-      "http_client": "direct_download",
+      "http_client": "default",
       "exclude": "(?i)Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量",
       "health_check": {
         "enabled": true,
