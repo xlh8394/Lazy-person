@@ -129,7 +129,7 @@
   ],
   "outbounds": [
     {"tag": "🎯 Direct", "type": "direct"},
-    {"tag": "🚀 Proxy", "type": "selector", "outbounds": ["🇭🇰 HongKong", "🇺🇸 United States", "🇸🇬 Singapore", "🇯🇵 Japan", "🇹🇼 Taiwan", "🌐 Others", "🎯 Direct"], "default": "🎯 Direct", "interrupt_exist_connections": true},
+    {"tag": "🚀 Proxy", "type": "selector", "outbounds": ["⚡ Auto", "🇭🇰 HongKong", "🇺🇸 United States", "🇸🇬 Singapore", "🇯🇵 Japan", "🇹🇼 Taiwan", "🌐 Others", "🎯 Direct"], "default": "⚡ Auto", "interrupt_exist_connections": true},
     {"tag": "🤖 AI", "type": "selector", "outbounds": ["🚀 Proxy", "🇭🇰 HongKong", "🇺🇸 United States", "🇸🇬 Singapore", "🇯🇵 Japan", "🇹🇼 Taiwan"], "default": "🇺🇸 United States", "interrupt_exist_connections": true},
     {"tag": "🔍 Google", "type": "selector", "outbounds": ["🚀 Proxy", "🇭🇰 HongKong", "🇺🇸 United States", "🇸🇬 Singapore", "🇯🇵 Japan", "🇹🇼 Taiwan"], "default": "🇺🇸 United States", "interrupt_exist_connections": true},
     {"tag": "🪟 Microsoft", "type": "selector", "outbounds": ["🚀 Proxy", "🇭🇰 HongKong", "🇺🇸 United States", "🇸🇬 Singapore", "🇯🇵 Japan", "🇹🇼 Taiwan", "🎯 Direct"], "default": "🎯 Direct", "interrupt_exist_connections": true},
