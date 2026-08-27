@@ -509,7 +509,7 @@ rule-providers:
     interval: 86400
     type: http
     path: ./Ruleset/Unbreak.yaml
-    url: https://raw.githubusercontent.com/Centralmatrix3/Matrix-io/master/Clash/Ruleset/Unbreak.yaml
+    url: https://raw.githubusercontent.com/Centralmatrix3/Matrix-io/master/Ruleset/Clash/Unbreak.yaml
 
   AdBlock:
     behavior: classical
