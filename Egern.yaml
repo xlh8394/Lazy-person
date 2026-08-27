@@ -350,7 +350,7 @@ rules:
 # 1. 规则修正：确保部分域名不被误拦截，优先直连
 - rule_set:
     name: 规则修正  # 修正部分域名的误判/误拦截，强制直连
-    match: https://raw.githubusercontent.com/Centralmatrix3/Matrix-io/master/Egern/Ruleset/Unbreak.yaml
+    match: https://raw.githubusercontent.com/Centralmatrix3/Matrix-io/master/Ruleset/Egern/Unbreak.yaml
     policy: DIRECT
     update_interval: 86400
     disabled: false
