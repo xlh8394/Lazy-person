@@ -1,15 +1,7 @@
 # 配置名称: Clash 配置（Mihomo 内核优化版 · 适配 Sparkle 客户端）
 # 配置作者:Claude 二次优化
-# 更新时间: 2026-08-15
+# 更新时间: 2026-08-28
 #
-# 本次优化要点（详见对应位置注释）：
-# 1. geodata 数据库改用 .mrs 二进制格式，加载更快、内存占用更低
-# 2. DNS 增加 respect-rules / proxy-server-nameserver / direct-nameserver，
-#    彻底避免"通过代理节点解析节点自身域名"导致的握手失败或 DNS 泄漏
-# 3. fake-ip-filter 补充常见内网/NTP 域名，减少不必要的 fake-ip 分配
-# 4. sniffer 增加 skip-domain，避免个别应用（如某些 QUIC/游戏）被嗅探误判
-# 5. 端口/TUN/嗅探这几项 Sparkle 默认会用 GUI 设置覆写本文件，
-#    如果你是"裸核"运行（不通过 Sparkle 界面接管），才需要这部分手动配置
 # [端口设置]
 # 注意：Sparkle 在 GUI 中开启"接管"后会自动覆写这些端口，
 # 如果你在 Sparkle 设置里已经配置了端口，这里可以不用管，留空即可以免冲突
@@ -112,6 +104,7 @@ proxy-providers:
     url: " 🧸 请填入你的订阅地址"                   # 🧸 请填入你的订阅地址
     path: ./Server/subscribe.yaml
     interval: 86400
+    exclude-filter: "(?i)Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量"  
     health-check:
       enable: true
       url: https://cp.cloudflare.com/generate_204
