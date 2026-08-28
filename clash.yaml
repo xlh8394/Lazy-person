@@ -475,7 +475,7 @@ proxy-groups:
 
   - name: "US-AUTO"
     type: url-test
-    icon:https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "美国|美|US|🇺🇸|(?i)States"
