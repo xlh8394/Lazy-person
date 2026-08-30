@@ -126,7 +126,7 @@ proxy-groups:
 
   - name: "Manual"
     type: select
-    icon: https://fastly.jsdelivr.net/gh/Centralmatrix3/Matrix-io@master/Gallery/Color/Static.png
+    icon: https://www.clashverge.dev/assets/icons/adjust.svg
     url: "https://cp.cloudflare.com/generate_204"
     include-all: true
     filter: "^"
