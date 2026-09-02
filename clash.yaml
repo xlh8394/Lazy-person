@@ -619,7 +619,7 @@ rule-providers:
     interval: 86400
     type: http
     path: ./raw/Emby1.yaml
-    url: https://fastly.jsdelivr.net/gh/xlh8394/Emby@main/Emby1.yaml
+    url: https://fastly.jsdelivr.net/gh/xlh8394/Emby@main/Emby.yaml
 
   Spotify:
     behavior: classical
