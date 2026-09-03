@@ -238,10 +238,10 @@
       "type": "selector",
       "outbounds": [
         "HongKong",
-        "United States",
-        "Singapore",
-        "Japan",
         "Taiwan",
+        "Japan",
+        "Singapore",
+        "United States",
         "Auto",
         "Others",
         "Direct"
@@ -255,10 +255,10 @@
       "outbounds": [
         "Proxy",
         "HongKong",
-        "United States",
-        "Singapore",
+        "Taiwan",
         "Japan",
-        "Taiwan"
+        "Singapore",
+        "United States"
       ],
       "default": "United States",
       "interrupt_exist_connections": true
@@ -269,10 +269,10 @@
       "outbounds": [
         "Proxy",
         "HongKong",
-        "United States",
-        "Singapore",
+        "Taiwan",
         "Japan",
-        "Taiwan"
+        "Singapore",
+        "United States"
       ],
       "default": "United States",
       "interrupt_exist_connections": true
@@ -283,10 +283,10 @@
       "outbounds": [
         "Proxy",
         "HongKong",
-        "United States",
-        "Singapore",
-        "Japan",
         "Taiwan",
+        "Japan",
+        "Singapore",
+        "United States",
         "Direct"
       ],
       "default": "Direct",
@@ -298,10 +298,10 @@
       "outbounds": [
         "Proxy",
         "HongKong",
-        "United States",
-        "Singapore",
+        "Taiwan",
         "Japan",
-        "Taiwan"
+        "Singapore",
+        "United States"
       ],
       "default": "HongKong",
       "interrupt_exist_connections": true
@@ -311,11 +311,10 @@
       "type": "selector",
       "outbounds": [
         "Proxy",
-        "HongKong",
-        "United States",
-        "Singapore",
+        "Taiwan",
         "Japan",
-        "Taiwan"
+        "Singapore",
+        "United States"
       ],
       "default": "United States",
       "interrupt_exist_connections": true
@@ -326,10 +325,10 @@
       "outbounds": [
         "Proxy",
         "HongKong",
-        "United States",
-        "Singapore",
+        "Taiwan",
         "Japan",
-        "Taiwan"
+        "Singapore",
+        "United States"
       ],
       "default": "HongKong",
       "interrupt_exist_connections": true
@@ -340,10 +339,10 @@
       "outbounds": [
         "Proxy",
         "HongKong",
-        "United States",
-        "Singapore",
-        "Japan",
         "Taiwan",
+        "Japan",
+        "Singapore",
+        "United States",
         "Direct"
       ],
       "interrupt_exist_connections": true
@@ -354,10 +353,10 @@
       "outbounds": [
         "Proxy",
         "HongKong",
-        "United States",
-        "Singapore",
-        "Japan",
         "Taiwan",
+        "Japan",
+        "Singapore",
+        "United States",
         "Direct"
       ],
       "default": "HongKong",
@@ -369,10 +368,10 @@
       "outbounds": [
         "Proxy",
         "HongKong",
-        "United States",
-        "Singapore",
-        "Japan",
         "Taiwan",
+        "Japan",
+        "Singapore",
+        "United States",
         "Direct"
       ],
       "default": "United States",
@@ -384,10 +383,10 @@
       "outbounds": [
         "Proxy",
         "HongKong",
-        "United States",
-        "Singapore",
+        "Taiwan",
         "Japan",
-        "Taiwan"
+        "Singapore",
+        "United States"
       ],
       "interrupt_exist_connections": true
     },
