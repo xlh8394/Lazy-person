@@ -414,7 +414,7 @@
       "interrupt_exist_connections": true
     },
     {
-      "tag": "United States",
+      "tag": "Japan",
       "type": "selector",
       "outbounds": [],
       "interrupt_exist_connections": true
@@ -426,7 +426,7 @@
       "interrupt_exist_connections": true
     },
     {
-      "tag": "Japan",
+      "tag": "United States",
       "type": "selector",
       "outbounds": [],
       "interrupt_exist_connections": true
