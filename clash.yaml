@@ -536,6 +536,7 @@ proxy-groups:
 
 # [本地规则]
 rules:
+  - DOMAIN-KEYWORD,yusen,DIRECT
   - DOMAIN-SUFFIX,gwdang.com,DIRECT
   - DOMAIN-SUFFIX,cloudflare.com,Global-Media
   - DOMAIN-SUFFIX,freedom.gov,Global-Media
