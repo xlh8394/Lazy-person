@@ -494,6 +494,16 @@
         "action": "reject"
       },
       {
+        "domain_suffix": [
+          "instagram.com",
+          "cdninstagram.com",
+          "fbcdn.net",
+          "fbsbx.com"
+        ],
+        "action": "route",
+        "outbound": "Social"
+      },
+      {
         "rule_set": ["AI"],
         "action": "route",
         "outbound": "AI"
