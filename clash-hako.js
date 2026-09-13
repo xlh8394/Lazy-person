@@ -11,454 +11,380 @@
  * 5. 策略组通过 include-all 自动匹配节点
  */
 
-// ==================== 可配置开关 ====================
-const ruleOptionsEnable = {
-  Manual: true,
-  Auto: true,
-  Apple: true,
-  bilibili: true,
-  'CN-Media': true,
-  'Global-Media': true,
-  AI: true,
-  TikTok: true,
-  Microsoft: true,
-  Emby: true,
-  Spotify: true,
-  Gaming: true,
-  Global: true,
-  Final: true,
-  // 地区组
-  HK: true,
-  TW: true,
-  JP: true,
-  KR: true,
-  SG: true,
-  US: true,
-  // 其他
-  屏蔽信息节点: true,
-};
-
-// 信息类伪节点过滤
-const infoFilter = 'Remain|Expired|官网|如需|套餐|去除|剩余|距离|Reset|重置|流量';
-
-// ==================== 主入口 ====================
 function main(config) {
-  const newConfig = {};
+  // 只取订阅节点，其他全部丢弃
+  const proxies = Array.isArray(config && config.proxies) ? config.proxies : [];
 
-  // ---------- 官方推荐通用设置 ----------
-  newConfig.mode = 'rule';
-  newConfig['log-level'] = 'warning';
-  newConfig.ipv6 = true;
-  newConfig['unified-delay'] = true;
-  newConfig['tcp-concurrent'] = true;
-  newConfig['keep-alive-interval'] = 30;
-
-  newConfig.profile = {
-    'store-selected': true,
-    'store-fake-ip': true,
-  };
-
-  newConfig['geodata-mode'] = true;
-
-  // ---------- DNS ----------
-  newConfig.dns = {
-    enable: true,
+  // 固定配置（纯 JS 对象）
+  const fixed = {
+    mode: "rule",
+    "log-level": "warning",
     ipv6: true,
-    'prefer-h3': false,
-    'respect-rules': true,
-    'enhanced-mode': 'fake-ip',
-    'fake-ip-range': '198.18.0.1/16',
-    'use-hosts': true,
-    'use-system-hosts': true,
-    'default-nameserver': ['223.5.5.5', '119.29.29.29'],
-    nameserver: [
-      'https://doh.pub/dns-query',
-      'https://dns.alidns.com/dns-query',
-    ],
-    'proxy-server-nameserver': [
-      'https://223.5.5.5/dns-query',
-      'https://dns.alidns.com/dns-query',
-    ],
-    'direct-nameserver': [
-      'https://dns.alidns.com/dns-query',
-      'https://doh.pub/dns-query',
-    ],
-    'direct-nameserver-follow-policy': false,
-    'fake-ip-filter': [
-      '*.lan',
-      '+.local',
-      'geosite:private',
-      'geosite:category-ntp',
-    ],
-  };
+    "unified-delay": true,
+    "tcp-concurrent": true,
+    "keep-alive-interval": 30,
 
-  // ---------- 嗅探 ----------
-  newConfig.sniffer = {
-    enable: true,
-    'force-dns-mapping': true,
-    'parse-pure-ip': true,
-    'override-destination': false,
-    sniff: {
-      HTTP: {
-        ports: [80, '8080-8880'],
-        'override-destination': true,
-      },
-      TLS: { ports: [443, 8443] },
-      QUIC: { ports: [443, 8443] },
+    profile: {
+      "store-selected": true,
+      "store-fake-ip": true
     },
-    'skip-domain': ['+.push.apple.com', '+.apple-dns.net'],
-  };
 
-  // ==================== 策略组（严格控制顺序） ====================
-  const proxyGroups = [];
+    dns: {
+      enable: true,
+      ipv6: true,
+      "prefer-h3": false,
+      "respect-rules": true,
+      "enhanced-mode": "fake-ip",
+      "fake-ip-range": "198.18.0.1/16",
+      "use-hosts": true,
+      "use-system-hosts": true,
+      "default-nameserver": ["223.5.5.5", "119.29.29.29"],
+      nameserver: [
+        "https://dns.cloudflare.com/dns-query",
+        "https://dns.google/dns-query"
+      ],
+      "proxy-server-nameserver": [
+        "https://dns.alidns.com/dns-query",
+        "https://doh.pub/dns-query"
+      ],
+      "direct-nameserver": [
+        "https://dns.alidns.com/dns-query",
+        "https://doh.pub/dns-query"
+      ],
+      "nameserver-policy": {
+        "geosite:cn": [
+          "https://dns.alidns.com/dns-query",
+          "https://doh.pub/dns-query"
+        ]
+      },
+      "fake-ip-filter": [
+        "*.lan",
+        "+.local",
+        "localhost",
+        "*.msftconnecttest.com",
+        "captive.apple.com",
+        "+.push.apple.com",
+        "stun.*",
+        "+.stun.*.*"
+      ]
+    },
 
-  // 1. 手动选择
-  if (ruleOptionsEnable.Manual) {
-    proxyGroups.push({
-      name: 'Manual',
-      type: 'select',
-      icon: 'https://raw.githubusercontent.com/Centralmatrix3/Matrix-io/master/Gallery/Color/Static.png',
-      url: 'https://cp.cloudflare.com/generate_204',
-      'include-all': true,
-      filter: '^',
-      'exclude-filter': infoFilter,
-      interval: 3600,
-      lazy: true,
-    });
-  }
+    sniffer: {
+      enable: true,
+      "force-dns-mapping": true,
+      "parse-pure-ip": true,
+      "override-destination": false,
+      sniff: {
+        HTTP: {
+          ports: [80, "8080-8880"],
+          "override-destination": true
+        },
+        TLS: {
+          ports: [443, 8443]
+        },
+        QUIC: {
+          ports: [443, 8443]
+        }
+      },
+      "skip-domain": ["+.push.apple.com", "+.apple-dns.net"]
+    },
 
-  // 2. 功能分流组（按原 YAML 顺序）
-  const serviceProxies = ['Manual', 'Auto', 'DIRECT', 'HK', 'TW', 'JP', 'KR', 'SG', 'US'];
-
-  if (ruleOptionsEnable.Apple) {
-    proxyGroups.push({
-      name: 'Apple',
-      type: 'select',
-      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple_2.png',
-      proxies: ['DIRECT', ...serviceProxies.filter(p => p !== 'DIRECT')],
-    });
-  }
-  if (ruleOptionsEnable.bilibili) {
-    proxyGroups.push({
-      name: 'bilibili',
-      type: 'select',
-      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/bilibili_3.png',
-      proxies: ['DIRECT', ...serviceProxies.filter(p => p !== 'DIRECT')],
-    });
-  }
-  if (ruleOptionsEnable['CN-Media']) {
-    proxyGroups.push({
-      name: 'CN-Media',
-      type: 'select',
-      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/DomesticMedia.png',
-      proxies: ['DIRECT', ...serviceProxies.filter(p => p !== 'DIRECT')],
-    });
-  }
-  if (ruleOptionsEnable['Global-Media']) {
-    proxyGroups.push({
-      name: 'Global-Media',
-      type: 'select',
-      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ForeignMedia.png',
-      proxies: serviceProxies,
-    });
-  }
-  if (ruleOptionsEnable.AI) {
-    proxyGroups.push({
-      name: 'AI',
-      type: 'select',
-      icon: 'https://fastly.jsdelivr.net/gh/shindgewongxj/WHATSINStash@master/icon/anthropic.png',
-      proxies: serviceProxies,
-    });
-  }
-  if (ruleOptionsEnable.TikTok) {
-    proxyGroups.push({
-      name: 'TikTok',
-      type: 'select',
-      icon: 'https://fastly.jsdelivr.net/gh/shindgewongxj/WHATSINStash@master/icon/tiktok.png',
-      proxies: serviceProxies,
-    });
-  }
-  if (ruleOptionsEnable.Microsoft) {
-    proxyGroups.push({
-      name: 'Microsoft',
-      type: 'select',
-      icon: 'https://fastly.jsdelivr.net/gh/shindgewongxj/WHATSINStash@master/icon/microsoft.png',
-      proxies: serviceProxies,
-    });
-  }
-  if (ruleOptionsEnable.Emby) {
-    proxyGroups.push({
-      name: 'Emby',
-      type: 'select',
-      icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Emby.png',
-      proxies: serviceProxies,
-    });
-  }
-  if (ruleOptionsEnable.Spotify) {
-    proxyGroups.push({
-      name: 'Spotify',
-      type: 'select',
-      icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Spotify.png',
-      proxies: serviceProxies,
-    });
-  }
-  if (ruleOptionsEnable.Gaming) {
-    proxyGroups.push({
-      name: 'Gaming',
-      type: 'select',
-      icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Game.png',
-      proxies: serviceProxies,
-    });
-  }
-  if (ruleOptionsEnable.Global) {
-    proxyGroups.push({
-      name: 'Global',
-      type: 'select',
-      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png',
-      proxies: serviceProxies,
-    });
-  }
-  if (ruleOptionsEnable.Final) {
-    proxyGroups.push({
-      name: 'Final',
-      type: 'select',
-      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png',
-      proxies: serviceProxies,
-    });
-  }
-
-  // 3. Auto（自动选择）
-  if (ruleOptionsEnable.Auto) {
-    proxyGroups.push({
-      name: 'Auto',
-      type: 'url-test',
-      icon: 'https://fastly.jsdelivr.net/gh/Orz-3/mini@master/Color/Roundrobin.png',
-      url: 'https://cp.cloudflare.com/generate_204',
-      'include-all': true,
-      filter: '^',
-      'exclude-filter': infoFilter,
-      tolerance: 50,
-      interval: 3600,
-      lazy: true,
-    });
-  }
-
-  // 4. 信息节点（隐藏）
-  if (ruleOptionsEnable.屏蔽信息节点) {
-    proxyGroups.push({
-      name: 'Info-Nodes',
-      type: 'select',
-      'include-all': true,
-      filter: infoFilter,
-      hidden: true,
-    });
-  }
-
-  // 5. 地区组（放在最后，隐藏的 AUTO/BALANCE 也在后面）
-  function addRegion(name, icon, filter) {
-    // 先放主组（界面可见）
-    proxyGroups.push({
-      name: name,
-      type: 'select',
-      icon: icon,
-      'include-all': true,
-      filter: filter,
-      proxies: [`${name}-AUTO`, `${name}-BALANCE`],
-    });
-    // 再放隐藏的 AUTO 和 BALANCE
-    proxyGroups.push(
+    "proxy-groups": [
+      // 主入口
       {
-        name: `${name}-AUTO`,
-        type: 'url-test',
-        icon: icon,
-        url: 'https://cp.cloudflare.com/generate_204',
-        'include-all': true,
-        filter: filter,
+        name: "PROXY-Gate",
+        type: "select",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Final.png",
+        proxies: [
+          "🌎 Global-Manual",
+          "🇺🇸 US-Auto",
+          "🇸🇬 SG-Auto",
+          "🇭🇰 HK-Auto",
+          "🇯🇵 JP-Auto",
+          "🇹🇼 TW-Auto",
+          "DIRECT"
+        ]
+      },
+
+      // Apple Push
+      {
+        name: "Apple Push",
+        type: "fallback",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Apple.png",
+        proxies: ["APNs-Fallback", "DIRECT"],
+        url: "http://captive.apple.com/hotspot-detect.html",
+        interval: 300
+      },
+      {
+        name: "APNs-Fallback",
+        type: "fallback",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Apple.png",
+        proxies: [
+          "🇺🇸 US-Auto",
+          "🇸🇬 SG-Auto",
+          "🇭🇰 HK-Auto",
+          "🇯🇵 JP-Auto",
+          "🇹🇼 TW-Auto"
+        ],
+        url: "http://captive.apple.com/hotspot-detect.html",
+        interval: 300,
+        hidden: true
+      },
+
+      // 手动选择
+      {
+        name: "🌎 Global-Manual",
+        type: "select",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Global.png",
+        "include-all": true,
+        filter: "^(?!.*(Remain|Expired|官网|套餐|流量|重置|距离)).*"
+      },
+
+      // 服务组
+      {
+        name: "YouTube",
+        type: "select",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/YouTube.png",
+        proxies: ["🇺🇸 US-Auto", "🇸🇬 SG-Auto", "🇭🇰 HK-Auto", "🇯🇵 JP-Auto", "🇹🇼 TW-Auto", "PROXY-Gate", "DIRECT"]
+      },
+      {
+        name: "Netflix",
+        type: "select",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Netflix.png",
+        proxies: ["🇺🇸 US-Auto", "🇸🇬 SG-Auto", "🇭🇰 HK-Auto", "🇯🇵 JP-Auto", "🇹🇼 TW-Auto", "PROXY-Gate", "DIRECT"]
+      },
+      {
+        name: "TikTok",
+        type: "select",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/TikTok.png",
+        proxies: ["🇯🇵 JP-Auto", "🇺🇸 US-Auto", "🇸🇬 SG-Auto", "🇭🇰 HK-Auto", "🇹🇼 TW-Auto", "PROXY-Gate", "DIRECT"]
+      },
+      {
+        name: "GPT",
+        type: "select",
+        icon: "https://fastly.jsdelivr.net/gh/shindgewongxj/WHATSINStash/icon/openai.png",
+        proxies: ["🇺🇸 US-Auto", "🇸🇬 SG-Auto", "🇯🇵 JP-Auto", "🇭🇰 HK-Auto", "🇹🇼 TW-Auto", "PROXY-Gate", "DIRECT"]
+      },
+      {
+        name: "AI",
+        type: "select",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/ChatGPT.png",
+        proxies: ["🇺🇸 US-Auto", "🇸🇬 SG-Auto", "🇯🇵 JP-Auto", "🇭🇰 HK-Auto", "🇹🇼 TW-Auto", "PROXY-Gate", "DIRECT"]
+      },
+      {
+        name: "Telegram",
+        type: "select",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Telegram.png",
+        proxies: ["🇺🇸 US-Auto", "🇸🇬 SG-Auto", "🇭🇰 HK-Auto", "🇯🇵 JP-Auto", "🇹🇼 TW-Auto", "PROXY-Gate", "DIRECT"]
+      },
+      {
+        name: "Apple",
+        type: "select",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Apple_2.png",
+        proxies: ["DIRECT", "PROXY-Gate", "🇺🇸 US-Auto", "🇸🇬 SG-Auto", "🇭🇰 HK-Auto", "🇯🇵 JP-Auto", "🇹🇼 TW-Auto"]
+      },
+      {
+        name: "Microsoft",
+        type: "select",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Microsoft.png",
+        proxies: ["DIRECT", "PROXY-Gate", "🇺🇸 US-Auto", "🇸🇬 SG-Auto", "🇭🇰 HK-Auto", "🇯🇵 JP-Auto", "🇹🇼 TW-Auto"]
+      },
+      {
+        name: "Spotify",
+        type: "select",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Spotify.png",
+        proxies: ["DIRECT", "PROXY-Gate", "🇺🇸 US-Auto", "🇸🇬 SG-Auto", "🇭🇰 HK-Auto", "🇯🇵 JP-Auto", "🇹🇼 TW-Auto"]
+      },
+      {
+        name: "Emby",
+        type: "select",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Emby.png",
+        proxies: ["DIRECT", "PROXY-Gate", "🇺🇸 US-Auto", "🇸🇬 SG-Auto", "🇭🇰 HK-Auto", "🇯🇵 JP-Auto", "🇹🇼 TW-Auto"]
+      },
+
+      // 地区自动组
+      {
+        name: "🇺🇸 US-Auto",
+        type: "url-test",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/United_States.png",
+        "include-all": true,
+        filter: "(?i)(🇺🇸|美国|USA?|United\\s*States|\\bUS\\b)",
+        url: "http://www.gstatic.com/generate_204",
+        interval: 600,
         tolerance: 50,
-        interval: 3600,
-        lazy: true,
-        hidden: true,
+        lazy: true
       },
       {
-        name: `${name}-BALANCE`,
-        type: 'load-balance',
-        strategy: 'round-robin',
-        icon: icon,
-        url: 'https://cp.cloudflare.com/generate_204',
-        'include-all': true,
-        filter: filter,
-        interval: 3600,
-        lazy: true,
-        hidden: true,
+        name: "🇸🇬 SG-Auto",
+        type: "url-test",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Singapore.png",
+        "include-all": true,
+        filter: "(?i)(🇸🇬|新加坡|狮城|\\bSG\\b|Singapore)",
+        url: "http://www.gstatic.com/generate_204",
+        interval: 600,
+        tolerance: 50,
+        lazy: true
       },
-    );
-  }
+      {
+        name: "🇭🇰 HK-Auto",
+        type: "url-test",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Hong_Kong.png",
+        "include-all": true,
+        filter: "(?i)(🇭🇰|香港|\\bHK\\b|Hong\\s*Kong)",
+        url: "http://www.gstatic.com/generate_204",
+        interval: 600,
+        tolerance: 50,
+        lazy: true
+      },
+      {
+        name: "🇯🇵 JP-Auto",
+        type: "url-test",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Japan.png",
+        "include-all": true,
+        filter: "(?i)(🇯🇵|日本|东京|大阪|\\bJP\\b|Japan)",
+        url: "http://www.gstatic.com/generate_204",
+        interval: 600,
+        tolerance: 50,
+        lazy: true
+      },
+      {
+        name: "🇹🇼 TW-Auto",
+        type: "url-test",
+        icon: "https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Taiwan.png",
+        "include-all": true,
+        filter: "(?i)(🇹🇼|台湾|台北|\\bTW\\b|Taiwan)",
+        url: "http://www.gstatic.com/generate_204",
+        interval: 600,
+        tolerance: 50,
+        lazy: true
+      }
+    ],
 
-  if (ruleOptionsEnable.HK) {
-    addRegion('HK', 'https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png', '香港|港|🇭🇰|HK|(?i)Hong');
-  }
-  if (ruleOptionsEnable.TW) {
-    addRegion('TW', 'https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Taiwan.png', '台湾|台|TW|🇹🇼');
-  }
-  if (ruleOptionsEnable.JP) {
-    addRegion('JP', 'https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png', '日本|日|JP|🇯🇵');
-  }
-  if (ruleOptionsEnable.KR) {
-    addRegion('KR', 'https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Korea.png', '韩国|韩|KR|🇰🇷');
-  }
-  if (ruleOptionsEnable.SG) {
-    addRegion('SG', 'https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png', '新加坡|狮|SG|🇸🇬');
-  }
-  if (ruleOptionsEnable.US) {
-    addRegion('US', 'https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png', '美国|美|US|🇺🇸|(?i)States');
-  }
+    rules: [
+      "IP-CIDR,192.168.0.0/16,DIRECT,no-resolve",
+      "IP-CIDR,10.0.0.0/8,DIRECT,no-resolve",
+      "IP-CIDR,172.16.0.0/12,DIRECT,no-resolve",
+      "IP-CIDR,127.0.0.0/8,DIRECT,no-resolve",
+      "GEOIP,LAN,DIRECT,no-resolve",
 
-  newConfig['proxy-groups'] = proxyGroups;
+      "DOMAIN-SUFFIX,push.apple.com,Apple Push",
+      "DOMAIN-SUFFIX,push-apple.com.akadns.net,Apple Push",
+      "DOMAIN-KEYWORD,apple.com.edgekey.net,Apple Push",
 
-  // ---------- 规则 ----------
-  newConfig.rules = [
-    'RULE-SET,LAN,DIRECT',
-    'DOMAIN-SUFFIX,gwdang.com,DIRECT',
-    'DOMAIN-SUFFIX,cloudflare.com,Global-Media',
-    'DOMAIN-SUFFIX,freedom.gov,Global-Media',
-    'RULE-SET,Unbreak,DIRECT',
-    'RULE-SET,AdBlock,REJECT',
-    'RULE-SET,AI,AI',
-    'RULE-SET,TikTok,TikTok',
-    'RULE-SET,Microsoft,Microsoft',
-    'RULE-SET,Emby,Emby',
-    'RULE-SET,Spotify,Spotify',
-    'RULE-SET,Steam,Gaming',
-    'RULE-SET,bilibili,bilibili',
-    'RULE-SET,CN-Media,CN-Media',
-    'RULE-SET,Global-Media,Global-Media',
-    'RULE-SET,Global,Global',
-    'RULE-SET,Apple,Apple',
-    'RULE-SET,ChinaDomain,DIRECT',
-    'RULE-SET,ChinaDirect,DIRECT,no-resolve',
-    'MATCH,Final',
-  ];
+      "RULE-SET,AdBlock,REJECT",
 
-  // ---------- 规则集 ----------
-  newConfig['rule-providers'] = {
-    Unbreak: {
-      behavior: 'classical',
-      interval: 86400,
-      type: 'http',
-      path: './Ruleset/Unbreak.yaml',
-      url: 'https://raw.githubusercontent.com/Centralmatrix3/Matrix-io/master/Ruleset/Clash/Unbreak.yaml',
-    },
-    AdBlock: {
-      behavior: 'classical',
-      interval: 86400,
-      type: 'http',
-      path: './Ruleset/AdBlock.yaml',
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Advertising/Advertising.yaml',
-    },
-    bilibili: {
-      behavior: 'classical',
-      interval: 86400,
-      type: 'http',
-      path: './Ruleset/BiliBili.yaml',
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/BiliBili/BiliBili.yaml',
-    },
-    'CN-Media': {
-      behavior: 'classical',
-      interval: 86400,
-      type: 'http',
-      path: './Ruleset/ChinaMedia.yaml',
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMedia/ChinaMedia.yaml',
-    },
-    'Global-Media': {
-      behavior: 'classical',
-      interval: 86400,
-      type: 'http',
-      path: './Ruleset/GlobalMedia.yaml',
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GlobalMedia/GlobalMedia.yaml',
-    },
-    AI: {
-      behavior: 'classical',
-      interval: 86400,
-      type: 'http',
-      path: './raw/Ai.yaml',
-      url: 'https://gist.githubusercontent.com/ddgksf2013/cb4121e8b5c5d865cc949cb8120320c4/raw/Ai.yaml',
-    },
-    TikTok: {
-      behavior: 'classical',
-      interval: 86400,
-      type: 'http',
-      path: './raw/TikTok.yaml',
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/TikTok/TikTok.yaml',
-    },
-    Microsoft: {
-      behavior: 'classical',
-      interval: 86400,
-      type: 'http',
-      path: './raw/Microsoft.yaml',
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Microsoft/Microsoft.yaml',
-    },
-    Emby: {
-      behavior: 'classical',
-      interval: 86400,
-      type: 'http',
-      path: './raw/Emby1.yaml',
-      url: 'https://raw.githubusercontent.com/xlh8394/Emby/refs/heads/main/Emby1.yaml',
-    },
-    Spotify: {
-      behavior: 'classical',
-      interval: 86400,
-      type: 'http',
-      path: './raw/Spotify.yaml',
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Spotify/Spotify.yaml',
-    },
-    Steam: {
-      behavior: 'classical',
-      interval: 86400,
-      type: 'http',
-      path: './raw/Steam.yaml',
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Steam/Steam.yaml',
-    },
-    Global: {
-      behavior: 'classical',
-      interval: 86400,
-      type: 'http',
-      path: './Ruleset/Global.yaml',
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Global/Global.yaml',
-    },
-    Apple: {
-      behavior: 'classical',
-      interval: 86400,
-      type: 'http',
-      path: './Ruleset/Apple.yaml',
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.yaml',
-    },
-    LAN: {
-      behavior: 'classical',
-      interval: 86400,
-      type: 'http',
-      path: './Ruleset/LAN.yaml',
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Lan/Lan.yaml',
-    },
-    ChinaDomain: {
-      behavior: 'domain',
-      interval: 86400,
-      type: 'http',
-      path: './Ruleset/ChinaMax_Domain.yaml',
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMax/ChinaMax_Domain.yaml',
-    },
-    ChinaDirect: {
-      behavior: 'ipcidr',
-      interval: 86400,
-      type: 'http',
-      path: './Ruleset/ChinaIPs_IP.yaml',
-      url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaIPs/ChinaIPs_IP.yaml',
-    },
+      "RULE-SET,YouTube,YouTube",
+      "RULE-SET,Netflix,Netflix",
+      "RULE-SET,TikTok,TikTok",
+      "RULE-SET,OpenAI,GPT",
+      "RULE-SET,Claude,AI",
+      "RULE-SET,Telegram,Telegram",
+      "RULE-SET,Apple,Apple",
+      "RULE-SET,Microsoft,Microsoft",
+      "RULE-SET,Spotify,Spotify",
+      "RULE-SET,Emby,Emby",
+
+      "GEOSITE,CN,DIRECT",
+      "GEOIP,CN,DIRECT,no-resolve",
+
+      "MATCH,PROXY-Gate"
+    ],
+
+    "rule-providers": {
+      AdBlock: {
+        type: "http",
+        behavior: "domain",
+        format: "mrs",
+        interval: 86400,
+        url: "https://fastly.jsdelivr.net/gh/217heidai/adblockfilters@main/rules/adblockmihomolite.mrs",
+        path: "./ruleset/AdBlock.mrs"
+      },
+      YouTube: {
+        type: "http",
+        behavior: "domain",
+        format: "mrs",
+        interval: 86400,
+        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/youtube.mrs",
+        path: "./ruleset/YouTube.mrs"
+      },
+      Netflix: {
+        type: "http",
+        behavior: "domain",
+        format: "mrs",
+        interval: 86400,
+        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/netflix.mrs",
+        path: "./ruleset/Netflix.mrs"
+      },
+      TikTok: {
+        type: "http",
+        behavior: "domain",
+        format: "mrs",
+        interval: 86400,
+        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/tiktok.mrs",
+        path: "./ruleset/TikTok.mrs"
+      },
+      OpenAI: {
+        type: "http",
+        behavior: "domain",
+        format: "mrs",
+        interval: 86400,
+        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/openai.mrs",
+        path: "./ruleset/OpenAI.mrs"
+      },
+      Claude: {
+        type: "http",
+        behavior: "domain",
+        format: "mrs",
+        interval: 86400,
+        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/anthropic.mrs",
+        path: "./ruleset/Claude.mrs"
+      },
+      Telegram: {
+        type: "http",
+        behavior: "domain",
+        format: "mrs",
+        interval: 86400,
+        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/telegram.mrs",
+        path: "./ruleset/Telegram.mrs"
+      },
+      Apple: {
+        type: "http",
+        behavior: "domain",
+        format: "mrs",
+        interval: 86400,
+        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/apple.mrs",
+        path: "./ruleset/Apple.mrs"
+      },
+      Microsoft: {
+        type: "http",
+        behavior: "domain",
+        format: "mrs",
+        interval: 86400,
+        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/microsoft.mrs",
+        path: "./ruleset/Microsoft.mrs"
+      },
+      Spotify: {
+        type: "http",
+        behavior: "domain",
+        format: "mrs",
+        interval: 86400,
+        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/spotify.mrs",
+        path: "./ruleset/Spotify.mrs"
+      },
+      Emby: {
+        type: "http",
+        behavior: "domain",
+        format: "mrs",
+        interval: 86400,
+        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/category-emby.mrs",
+        path: "./ruleset/Emby.mrs"
+      }
+    }
   };
 
-  // 保留原有节点
-  if (config.proxies && Array.isArray(config.proxies)) {
-    newConfig.proxies = config.proxies;
-  }
-
-  return newConfig;
+  // 返回最终配置
+  return {
+    ...fixed,
+    proxies: proxies
+  };
 }
