@@ -290,96 +290,96 @@ function main(config) {
       "MATCH,PROXY-Gate"
     ],
 
-    "rule-providers": {
-      AdBlock: {
-        type: "http",
-        behavior: "domain",
-        format: "mrs",
-        interval: 86400,
-        url: "https://fastly.jsdelivr.net/gh/217heidai/adblockfilters@main/rules/adblockmihomolite.mrs",
-        path: "./ruleset/AdBlock.mrs"
-      },
-      YouTube: {
-        type: "http",
-        behavior: "domain",
-        format: "mrs",
-        interval: 86400,
-        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/youtube.mrs",
-        path: "./ruleset/YouTube.mrs"
-      },
-      Netflix: {
-        type: "http",
-        behavior: "domain",
-        format: "mrs",
-        interval: 86400,
-        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/netflix.mrs",
-        path: "./ruleset/Netflix.mrs"
-      },
-      TikTok: {
-        type: "http",
-        behavior: "domain",
-        format: "mrs",
-        interval: 86400,
-        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/tiktok.mrs",
-        path: "./ruleset/TikTok.mrs"
-      },
-      OpenAI: {
-        type: "http",
-        behavior: "domain",
-        format: "mrs",
-        interval: 86400,
-        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/openai.mrs",
-        path: "./ruleset/OpenAI.mrs"
-      },
-      Claude: {
-        type: "http",
-        behavior: "domain",
-        format: "mrs",
-        interval: 86400,
-        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/anthropic.mrs",
-        path: "./ruleset/Claude.mrs"
-      },
-      Telegram: {
-        type: "http",
-        behavior: "domain",
-        format: "mrs",
-        interval: 86400,
-        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/telegram.mrs",
-        path: "./ruleset/Telegram.mrs"
-      },
-      Apple: {
-        type: "http",
-        behavior: "domain",
-        format: "mrs",
-        interval: 86400,
-        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/apple.mrs",
-        path: "./ruleset/Apple.mrs"
-      },
-      Microsoft: {
-        type: "http",
-        behavior: "domain",
-        format: "mrs",
-        interval: 86400,
-        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/microsoft.mrs",
-        path: "./ruleset/Microsoft.mrs"
-      },
-      Spotify: {
-        type: "http",
-        behavior: "domain",
-        format: "mrs",
-        interval: 86400,
-        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/spotify.mrs",
-        path: "./ruleset/Spotify.mrs"
-      },
-      Emby: {
-        type: "http",
-        behavior: "domain",
-        format: "mrs",
-        interval: 86400,
-        url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/category-emby.mrs",
-        path: "./ruleset/Emby.mrs"
-      }
-    }
+"rule-providers": {
+  AdBlock: {
+    type: "http",
+    behavior: "classical",
+    format: "yaml",
+    interval: 86400,
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AdvertisingLite/AdvertisingLite.yaml",
+    path: "./ruleset/AdBlock.yaml"
+  },
+  YouTube: {
+    type: "http",
+    behavior: "classical",
+    format: "yaml",
+    interval: 86400,
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/YouTube/YouTube.yaml",
+    path: "./ruleset/YouTube.yaml"
+  },
+  Netflix: {
+    type: "http",
+    behavior: "classical",
+    format: "yaml",
+    interval: 86400,
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Netflix/Netflix.yaml",
+    path: "./ruleset/Netflix.yaml"
+  },
+  TikTok: {
+    type: "http",
+    behavior: "classical",
+    format: "yaml",
+    interval: 86400,
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/TikTok/TikTok.yaml",
+    path: "./ruleset/TikTok.yaml"
+  },
+  OpenAI: {
+    type: "http",
+    behavior: "classical",
+    format: "yaml",
+    interval: 86400,
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/OpenAI/OpenAI.yaml",
+    path: "./ruleset/OpenAI.yaml"
+  },
+  Claude: {
+    type: "http",
+    behavior: "classical",
+    format: "yaml",
+    interval: 86400,
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Claude/Claude.yaml",
+    path: "./ruleset/Claude.yaml"
+  },
+  Telegram: {
+    type: "http",
+    behavior: "classical",
+    format: "yaml",
+    interval: 86400,
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Telegram/Telegram.yaml",
+    path: "./ruleset/Telegram.yaml"
+  },
+  Apple: {
+    type: "http",
+    behavior: "classical",
+    format: "yaml",
+    interval: 86400,
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.yaml",
+    path: "./ruleset/Apple.yaml"
+  },
+  Microsoft: {
+    type: "http",
+    behavior: "classical",
+    format: "yaml",
+    interval: 86400,
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.yaml",
+    path: "./ruleset/Microsoft.yaml"
+  },
+  Spotify: {
+    type: "http",
+    behavior: "classical",
+    format: "yaml",
+    interval: 86400,
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Spotify/Spotify.yaml",
+    path: "./ruleset/Spotify.yaml"
+  },
+  Emby: {
+    type: "http",
+    behavior: "classical",
+    format: "yaml",
+    interval: 86400,
+    url: "https://raw.githubusercontent.com/xlh8394/Emby/refs/heads/main/Emby.yaml",
+    path: "./ruleset/Emby.yaml"
+  }
+}
   };
 
   // 返回最终配置
