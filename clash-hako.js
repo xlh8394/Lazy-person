@@ -2,15 +2,6 @@
  * mihomo配置覆写脚本（全量版）- 适配 Clash by Hako Group
  * 原作者：AIsouler
  * 源仓库：https://github.com/AIsouler/MyClash
- *
- * 修改说明（按 Clash by Hako 官方最佳实践）：
- * 1. 移除 mixed-port / allow-lan / bind-address / external-controller / external-ui / tun / find-process-mode
- * 2. 地区顺序：香港 → 台湾 → 日本 → 新加坡 → 美国
- * 3. 「台湾省」统一改为「台湾」
- * 4. 代理组使用「直连」（Hako 禁止与内置 DIRECT 重名）
- * 5. 地区组本身设为 url-test（自动测速选最优），彻底删除「xxx-自动选择」子组
- * 6. 「直连」组显式引用内置 DIRECT，消除「未入组」
- * 7. url-test 测试地址改为 gstatic
  * 参考：https://clash.md/zh/guide/config/best-practice
  */
 // --- 静态配置区域 ---
