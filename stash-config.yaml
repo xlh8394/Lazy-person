@@ -2,19 +2,6 @@
 # Stash PC / Windows 配置
 # 基于 mihomoScript.js (AIsouler / Lazy-person) 逻辑优化
 # 适配 Stash Windows
-#
-# 地区顺序：
-# 🇭🇰 香港
-# 🇹🇼 台湾
-# 🇯🇵 日本
-# 🇸🇬 新加坡
-# 🇺🇸 美国
-# 其它节点
-#
-# 重要：
-# 1. 已移除“国外 UDP/443 REJECT”规则，避免 HY2 被拦截
-# 2. 地区组使用 include-all + filter
-# 3. 负载均衡使用 consistent-hashing
 # ============================================================
 
 
