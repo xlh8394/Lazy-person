@@ -76,13 +76,15 @@ dns:
     - "*.mcdn.bilivideo.cn"
 
 hosts:
-  "cloudflare-dns.com":
+  cloudflare-dns.com:
     - 1.1.1.1
     - 1.0.0.1
-  "dns.google":
+
+  dns.google:
     - 8.8.8.8
     - 8.8.4.4
-  "services.googleapis.cn":
+
+  services.googleapis.cn:
     - services.googleapis.com
 
 tun:
@@ -99,8 +101,8 @@ tun:
 proxy-providers:
 
   机场1:
-    url: "YOUR_SECOND_AIRPORT_SUBSCRIPTION_URL"
     type: http
+    url: "YOUR_SECOND_AIRPORT_SUBSCRIPTION_URL"
     interval: 3600
     path: ./providers/机场1.yaml
     health-check:
@@ -109,8 +111,8 @@ proxy-providers:
       url: https://www.apple.com/library/test/success.html
 
   机场2:
-    url: "YOUR_SECOND_AIRPORT_SUBSCRIPTION_URL"
     type: http
+    url: "YOUR_SECOND_AIRPORT_SUBSCRIPTION_URL"
     interval: 3600
     path: ./providers/机场2.yaml
     health-check:
@@ -123,6 +125,8 @@ proxy-groups:
   - name: 手动选择
     type: select
     include-all: true
+    exclude-type: direct
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Static.png
 
   - name: 自动选择
     type: url-test
@@ -132,6 +136,7 @@ proxy-groups:
     interval: 600
     tolerance: 50
     lazy: true
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
 
   - name: 负载均衡
     type: load-balance
@@ -141,6 +146,7 @@ proxy-groups:
     url: https://www.apple.com/library/test/success.html
     interval: 600
     lazy: true
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Round_Robin.png
 
   - name: FCM
     type: select
@@ -149,6 +155,7 @@ proxy-groups:
       - 自动选择
       - 手动选择
       - DIRECT
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Google.png
 
   - name: YouTube
     type: select
@@ -156,6 +163,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/YouTube.png
 
   - name: Google
     type: select
@@ -163,6 +171,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Google_Search.png
 
   - name: AI
     type: select
@@ -170,6 +179,10 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+      - 🇺🇸 美国
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ChatGPT.png
 
   - name: Microsoft
     type: select
@@ -178,6 +191,7 @@ proxy-groups:
       - 自动选择
       - 手动选择
       - DIRECT
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Microsoft.png
 
   - name: Apple
     type: select
@@ -186,6 +200,7 @@ proxy-groups:
       - 自动选择
       - 手动选择
       - DIRECT
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple.png
 
   - name: Telegram
     type: select
@@ -193,6 +208,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Telegram.png
 
   - name: Steam
     type: select
@@ -200,6 +216,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Steam.png
 
   - name: TikTok
     type: select
@@ -207,6 +224,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/TikTok.png
 
   - name: Twitter
     type: select
@@ -214,6 +232,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Twitter.png
 
   - name: Instagram
     type: select
@@ -221,6 +240,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Instagram.png
 
   - name: Netflix
     type: select
@@ -228,6 +248,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Netflix_Letter.png
 
   - name: Emby
     type: select
@@ -235,6 +256,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Emby.png
 
   - name: PikPak
     type: select
@@ -242,6 +264,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/PikPak.png
 
   - name: Spotify
     type: select
@@ -249,6 +272,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Spotify.png
 
   - name: Crypto
     type: select
@@ -256,6 +280,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Crypto.png
 
   - name: EHentai
     type: select
@@ -263,6 +288,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/EHentai.png
 
   - name: 默认代理
     type: select
@@ -278,82 +304,91 @@ proxy-groups:
       - 低倍率节点
       - 高倍率节点
       - 其它节点
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png
 
   - name: 低倍率节点
     type: url-test
     include-all: true
-    filter: '(?i)^(?=.*(?:0\.[0-9]+|免费|free|低倍率|低倍)).*$'
     exclude-type: direct
+    filter: '(?i)^(?=.*(?:0\.[0-9]+|免费|free|低倍率|低倍)).*$'
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
     lazy: true
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Speedtest.png
 
   - name: 高倍率节点
     type: url-test
     include-all: true
-    filter: '(?i)^(?=.*(?:x2|x3|x4|x5|x6|x7|x8|x9|2倍|3倍|4倍|5倍|高倍率|高倍)).*$'
     exclude-type: direct
+    filter: '(?i)^(?=.*(?:x2|x3|x4|x5|x6|x7|x8|x9|2倍|3倍|4倍|5倍|高倍率|高倍)).*$'
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
     lazy: true
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Speedtest.png
 
   - name: 🇭🇰 香港
     type: url-test
     include-all: true
-    filter: '(?i)^(?=.*(?:🇭🇰|香港|HKG|Hong\s*Kong)).*$'
     exclude-type: direct
+    filter: '(?i)^(?=.*(?:🇭🇰|香港|HKG|Hong\s*Kong)).*$'
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
     lazy: true
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png
 
   - name: 🇹🇼 台湾
     type: url-test
     include-all: true
-    filter: '(?i)^(?=.*(?:🇹🇼|台湾|台北|高雄|TWN|Taiwan)).*$'
     exclude-type: direct
+    filter: '(?i)^(?=.*(?:🇹🇼|台湾|台北|高雄|TWN|Taiwan)).*$'
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
     lazy: true
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Taiwan.png
 
   - name: 🇯🇵 日本
     type: url-test
     include-all: true
-    filter: '(?i)^(?=.*(?:🇯🇵|日本|东京|大阪|京都|JPN|Japan)).*$'
     exclude-type: direct
+    filter: '(?i)^(?=.*(?:🇯🇵|日本|东京|大阪|京都|JPN|Japan)).*$'
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
     lazy: true
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png
 
   - name: 🇸🇬 新加坡
     type: url-test
     include-all: true
-    filter: '(?i)^(?=.*(?:🇸🇬|新加坡|狮城|SGP|Singapore)).*$'
     exclude-type: direct
+    filter: '(?i)^(?=.*(?:🇸🇬|新加坡|狮城|SGP|Singapore)).*$'
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
     lazy: true
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png
 
   - name: 🇺🇸 美国
     type: url-test
     include-all: true
-    filter: '(?i)^(?=.*(?:🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States)).*$'
     exclude-type: direct
+    filter: '(?i)^(?=.*(?:🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States)).*$'
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
     lazy: true
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png
 
   - name: 其它节点
     type: select
     include-all: true
     exclude-type: direct
     filter: '(?i)^(?!.*(?:🇭🇰|香港|HKG|Hong\s*Kong|🇹🇼|台湾|台北|高雄|TWN|Taiwan|🇯🇵|日本|东京|大阪|京都|JPN|Japan|🇸🇬|新加坡|狮城|SGP|Singapore|🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States|群|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|备用|过期|已用|联系|邮箱|工单|通知|国内|频道|电报|超时|优惠|福利|邀请|失联|公益|发布|DIZTNA|通路|登录|禁止|定时|渠道|余额|本站|刷新|导航|建议|重置|过滤|⚠️|@|t\.me|\.com|traffic)).*$'
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Globe.png
 
 rule-providers:
 
@@ -381,6 +416,22 @@ rule-providers:
     path: ./rules/cn_ip.yaml
     interval: 86400
 
+  AI:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/xlh8394/Ai/refs/heads/main/Ai.yaml
+    path: ./rules/AI.yaml
+    interval: 86400
+
+  Emby:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/xlh8394/Emby/refs/heads/main/Emby.yaml
+    path: ./rules/Emby.yaml
+    interval: 86400
+
   YouTube:
     type: http
     behavior: classical
@@ -395,14 +446,6 @@ rule-providers:
     format: yaml
     url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Google/Google.yaml
     path: ./rules/Google.yaml
-    interval: 86400
-
-  AI:
-    type: http
-    behavior: classical
-    format: yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AI/AI.yaml
-    path: ./rules/AI.yaml
     interval: 86400
 
   Microsoft:
@@ -469,14 +512,6 @@ rule-providers:
     path: ./rules/Netflix.yaml
     interval: 86400
 
-  Emby:
-    type: http
-    behavior: classical
-    format: yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Emby/Emby.yaml
-    path: ./rules/Emby.yaml
-    interval: 86400
-
   PikPak:
     type: http
     behavior: classical
@@ -497,43 +532,30 @@ rule-providers:
     type: http
     behavior: classical
     format: yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Cryptocurrency/Cryptocurrency.yaml
-    path: ./rules/Cryptocurrency.yaml
-    interval: 86400
-
-  EHentai:
-    type: http
-    behavior: classical
-    format: yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/EHentai/EHentai.yaml
-    path: ./rules/EHentai.yaml
-    interval: 86400
-
-  GoogleFCM:
-    type: http
-    behavior: classical
-    format: yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GoogleFCM/GoogleFCM.yaml
-    path: ./rules/GoogleFCM.yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Crypto/Crypto_No_Resolve.yaml
+    path: ./rules/Crypto.yaml
     interval: 86400
 
   AdBlock:
     type: http
     behavior: classical
     format: yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AdGuard/AdGuard.yaml
-    path: ./rules/AdGuard.yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Advertising/Advertising_Classical_No_Resolve.yaml
+    path: ./rules/AdBlock.yaml
     interval: 86400
 
 rules:
+  - DOMAIN-KEYWORD,yusen,DIRECT
 
   - RULE-SET,private,DIRECT
 
-  - RULE-SET,GoogleFCM,FCM
+  - RULE-SET,AdBlock,REJECT
+
+  - RULE-SET,AI,AI
+  - RULE-SET,Emby,Emby
 
   - RULE-SET,YouTube,YouTube
   - RULE-SET,Google,Google
-  - RULE-SET,AI,AI
   - RULE-SET,Microsoft,Microsoft
   - RULE-SET,Apple,Apple
   - RULE-SET,Telegram,Telegram
@@ -542,11 +564,9 @@ rules:
   - RULE-SET,Twitter,Twitter
   - RULE-SET,Instagram,Instagram
   - RULE-SET,Netflix,Netflix
-  - RULE-SET,Emby,Emby
   - RULE-SET,PikPak,PikPak
   - RULE-SET,Spotify,Spotify
   - RULE-SET,Crypto,Crypto
-  - RULE-SET,EHentai,EHentai
 
   - RULE-SET,cn,DIRECT
   - RULE-SET,cn_ip,DIRECT
