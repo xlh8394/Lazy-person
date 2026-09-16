@@ -58,6 +58,14 @@ const ruleOptionsEnable = {
 
 // 定义前置规则
 const prefixRules = [
+// 抖音/字节相关强制直连，防止广告规则误伤
+  'DOMAIN-SUFFIX,douyin.com,直连',
+  'DOMAIN-SUFFIX,iesdouyin.com,直连',
+  'DOMAIN-SUFFIX,snssdk.com,直连',
+  'DOMAIN-SUFFIX,bytedance.com,直连',
+  'DOMAIN-SUFFIX,byteimg.com,直连',
+  'DOMAIN-SUFFIX,toutiao.com,直连',
+  
   // 私有网络直连
   'RULE-SET,private,直连',
 
