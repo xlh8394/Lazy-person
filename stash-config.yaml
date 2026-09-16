@@ -155,7 +155,7 @@ proxy-groups:
       - 自动选择
       - 手动选择
       - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Google.png
+    icon: https://fastly.jsdelivr.net/gh/MiToverG422/Qure@master/IconSet/Color/fcm.png
 
   - name: YouTube
     type: select
@@ -248,7 +248,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Netflix_Letter.png
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Netflix.png
 
   - name: Emby
     type: select
@@ -264,7 +264,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/PikPak.png
+    icon: https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/03CNSoft/pikpak.png
 
   - name: Spotify
     type: select
@@ -280,7 +280,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Crypto.png
+    icon: https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/04ProxySoft/Bitcoin.png
 
   - name: EHentai
     type: select
@@ -288,7 +288,7 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/EHentai.png
+    icon: https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/04ProxySoft/exhentai.png
 
   - name: 默认代理
     type: select
