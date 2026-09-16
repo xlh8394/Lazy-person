@@ -486,7 +486,7 @@ proxy-groups:
 
     filter: '^(?!.*(官网|公告|通知|套餐|剩余|流量|到期|续费|客服|群|频道|订阅)).*$'
 
-    strategy: sticky-sessions
+    strategy: consistent-hashing
     url: https://www.apple.com/library/test/success.html
     interval: 600
 
