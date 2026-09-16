@@ -122,16 +122,20 @@ proxy-providers:
 
 proxy-groups:
 
+  # =========================
+  # 核心策略组
+  # =========================
+
   - name: 手动选择
     type: select
     include-all: true
-    exclude-type: direct
+    exclude-type: DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Static.png
 
   - name: 自动选择
     type: url-test
     include-all: true
-    exclude-type: direct
+    exclude-type: DIRECT
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
@@ -142,11 +146,16 @@ proxy-groups:
     type: load-balance
     strategy: consistent-hashing
     include-all: true
-    exclude-type: direct
+    exclude-type: DIRECT
     url: https://www.apple.com/library/test/success.html
     interval: 600
     lazy: true
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Round_Robin.png
+
+
+  # =========================
+  # 服务策略组
+  # =========================
 
   - name: FCM
     type: select
@@ -357,6 +366,11 @@ proxy-groups:
       - 🇺🇸 美国
     icon: https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/04ProxySoft/exhentai.png
 
+
+  # =========================
+  # 默认代理
+  # =========================
+
   - name: 默认代理
     type: select
     proxies:
@@ -373,11 +387,17 @@ proxy-groups:
       - 其它节点
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png
 
+
+  # =========================
+  # 倍率节点
+  # 只允许真实节点
+  # =========================
+
   - name: 低倍率节点
     type: url-test
     include-all: true
-    exclude-type: direct
-    filter: '(?i)^(?=.*(?:0\.[0-9]+|免费|free|低倍率|低倍)).*$'
+    exclude-type: DIRECT
+    filter: '(?i)^(?!DIRECT$)(?!REJECT$)(?!.*(?:手动选择|自动选择|负载均衡|默认代理|低倍率节点|高倍率节点|其它节点|FCM|YouTube|Google|AI|Microsoft|Apple|Telegram|Steam|TikTok|Twitter|Instagram|Netflix|Emby|PikPak|Spotify|Crypto|EHentai)$)(?=.*(?:0\.[0-9]+|免费|free|低倍率|低倍)).*$'
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
@@ -387,19 +407,24 @@ proxy-groups:
   - name: 高倍率节点
     type: url-test
     include-all: true
-    exclude-type: direct
-    filter: '(?i)^(?=.*(?:x2|x3|x4|x5|x6|x7|x8|x9|2倍|3倍|4倍|5倍|高倍率|高倍)).*$'
+    exclude-type: DIRECT
+    filter: '(?i)^(?!DIRECT$)(?!REJECT$)(?!.*(?:手动选择|自动选择|负载均衡|默认代理|低倍率节点|高倍率节点|其它节点|FCM|YouTube|Google|AI|Microsoft|Apple|Telegram|Steam|TikTok|Twitter|Instagram|Netflix|Emby|PikPak|Spotify|Crypto|EHentai)$)(?=.*(?:x2|x3|x4|x5|x6|x7|x8|x9|2倍|3倍|4倍|5倍|高倍率|高倍)).*$'
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
     lazy: true
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Speedtest.png
 
+
+  # =========================
+  # 地区节点
+  # 只允许真实机场节点
+  # =========================
+
   - name: 🇭🇰 香港
     type: url-test
     include-all: true
-    exclude-type: direct
-    filter: '(?i)^(?=.*(?:🇭🇰|香港|HKG|Hong\s*Kong)).*$'
+    filter: '(?i)^(?!DIRECT$)(?!REJECT$)(?!.*(?:手动选择|自动选择|负载均衡|默认代理|低倍率节点|高倍率节点|其它节点|FCM|YouTube|Google|AI|Microsoft|Apple|Telegram|Steam|TikTok|Twitter|Instagram|Netflix|Emby|PikPak|Spotify|Crypto|EHentai)$)(?=.*(?:🇭🇰|香港|HKG|Hong\s*Kong)).*$'
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
@@ -409,8 +434,7 @@ proxy-groups:
   - name: 🇹🇼 台湾
     type: url-test
     include-all: true
-    exclude-type: direct
-    filter: '(?i)^(?=.*(?:🇹🇼|台湾|台北|高雄|TWN|Taiwan)).*$'
+    filter: '(?i)^(?!DIRECT$)(?!REJECT$)(?!.*(?:手动选择|自动选择|负载均衡|默认代理|低倍率节点|高倍率节点|其它节点|FCM|YouTube|Google|AI|Microsoft|Apple|Telegram|Steam|TikTok|Twitter|Instagram|Netflix|Emby|PikPak|Spotify|Crypto|EHentai)$)(?=.*(?:🇹🇼|台湾|台北|高雄|TWN|Taiwan)).*$'
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
@@ -420,8 +444,7 @@ proxy-groups:
   - name: 🇯🇵 日本
     type: url-test
     include-all: true
-    exclude-type: direct
-    filter: '(?i)^(?=.*(?:🇯🇵|日本|东京|大阪|京都|JPN|Japan)).*$'
+    filter: '(?i)^(?!DIRECT$)(?!REJECT$)(?!.*(?:手动选择|自动选择|负载均衡|默认代理|低倍率节点|高倍率节点|其它节点|FCM|YouTube|Google|AI|Microsoft|Apple|Telegram|Steam|TikTok|Twitter|Instagram|Netflix|Emby|PikPak|Spotify|Crypto|EHentai)$)(?=.*(?:🇯🇵|日本|东京|大阪|京都|JPN|Japan)).*$'
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
@@ -431,8 +454,7 @@ proxy-groups:
   - name: 🇸🇬 新加坡
     type: url-test
     include-all: true
-    exclude-type: direct
-    filter: '(?i)^(?=.*(?:🇸🇬|新加坡|狮城|SGP|Singapore)).*$'
+    filter: '(?i)^(?!DIRECT$)(?!REJECT$)(?!.*(?:手动选择|自动选择|负载均衡|默认代理|低倍率节点|高倍率节点|其它节点|FCM|YouTube|Google|AI|Microsoft|Apple|Telegram|Steam|TikTok|Twitter|Instagram|Netflix|Emby|PikPak|Spotify|Crypto|EHentai)$)(?=.*(?:🇸🇬|新加坡|狮城|SGP|Singapore)).*$'
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
@@ -442,19 +464,24 @@ proxy-groups:
   - name: 🇺🇸 美国
     type: url-test
     include-all: true
-    exclude-type: direct
-    filter: '(?i)^(?=.*(?:🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States)).*$'
+    filter: '(?i)^(?!DIRECT$)(?!REJECT$)(?!.*(?:手动选择|自动选择|负载均衡|默认代理|低倍率节点|高倍率节点|其它节点|FCM|YouTube|Google|AI|Microsoft|Apple|Telegram|Steam|TikTok|Twitter|Instagram|Netflix|Emby|PikPak|Spotify|Crypto|EHentai)$)(?=.*(?:🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States)).*$'
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
     lazy: true
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png
 
+
+  # =========================
+  # 其它节点
+  # 排除所有策略组及地区节点
+  # =========================
+
   - name: 其它节点
     type: select
     include-all: true
-    exclude-type: direct
-    filter: '(?i)^(?!.*(?:🇭🇰|香港|HKG|Hong\s*Kong|🇹🇼|台湾|台北|高雄|TWN|Taiwan|🇯🇵|日本|东京|大阪|京都|JPN|Japan|🇸🇬|新加坡|狮城|SGP|Singapore|🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States|群|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|备用|过期|已用|联系|邮箱|工单|通知|国内|频道|电报|超时|优惠|福利|邀请|失联|公益|发布|DIZTNA|通路|登录|禁止|定时|渠道|余额|本站|刷新|导航|建议|重置|过滤|⚠️|@|t\.me|\.com|traffic)).*$'
+    exclude-type: DIRECT
+    filter: '(?i)^(?!DIRECT$)(?!REJECT$)(?!.*(?:手动选择|自动选择|负载均衡|默认代理|低倍率节点|高倍率节点|其它节点|FCM|YouTube|Google|AI|Microsoft|Apple|Telegram|Steam|TikTok|Twitter|Instagram|Netflix|Emby|PikPak|Spotify|Crypto|EHentai|🇭🇰|香港|HKG|Hong\s*Kong|🇹🇼|台湾|台北|高雄|TWN|Taiwan|🇯🇵|日本|东京|大阪|京都|JPN|Japan|🇸🇬|新加坡|狮城|SGP|Singapore|🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States|群|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|备用|过期|已用|联系|邮箱|工单|通知|国内|频道|电报|超时|优惠|福利|邀请|失联|公益|发布|DIZTNA|通路|登录|禁止|定时|渠道|余额|本站|刷新|导航|建议|重置|过滤|⚠️|@|t\.me|\.com|traffic)).*$'
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Globe.png
 
 rule-providers:
