@@ -1,18 +1,29 @@
 # ============================================================
-# Stash PC / Windows 配置
-# 基于 mihomoScript.js (AIsouler / Lazy-person) 逻辑优化
-# 适配 Stash Windows
-# ============================================================
-
-
-# ============================================================
-# 基础设置
+# Stash Windows - 优化完整配置
+# 基于 AIsouler / MyClash mihomoScript.js 逻辑整理
 # ============================================================
 
 mode: rule
 log-level: info
-allow-lan: false
 
+allow-lan: false
+bind-address: "*"
+
+ipv6: true
+unified-delay: true
+tcp-concurrent: true
+keep-alive-interval: 60
+find-process-mode: strict
+
+mixed-port: 7890
+
+external-controller: 127.0.0.1:9090
+external-ui: ui
+external-ui-url: https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip
+
+profile:
+  store-selected: true
+  store-fake-ip: true
 
 # ============================================================
 # DNS
@@ -21,50 +32,91 @@ allow-lan: false
 dns:
   enable: true
 
-  # 用于解析代理服务器、Provider、规则等
+  ipv6: true
+
+  enhanced-mode: fake-ip
+
+  fake-ip-range: 198.18.0.1/15
+  fake-ip-range6: 2001:2::1/48
+
+  use-hosts: true
+  use-system-hosts: true
+
+  cache-algorithm: arc
+
   default-nameserver:
     - 223.5.5.5
     - 119.29.29.29
     - system
 
-  # 国外 DNS
-  # 通过“默认代理”访问
+  proxy-server-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
+
   nameserver:
     - https://cloudflare-dns.com/dns-query#默认代理
     - https://dns.google/dns-query#默认代理
 
-  # 中国大陆域名使用国内 DNS
   nameserver-policy:
-    'geosite:cn':
+    "geosite:cn":
       - 223.5.5.5
       - 119.29.29.29
 
-  # Fake-IP 排除
+  direct-nameserver:
+    - system
+    - 223.5.5.5
+    - 119.29.29.29
+
   fake-ip-filter:
-    - '+.stun.*.*'
-    - '+.stun.*.*.*'
-    - '+.stun.*.*.*.*'
-    - 'lens.l.google.com'
-    - '*.n.n.srv.nintendo.net'
-    - '+.stun.playstation.net'
-    - 'xbox.*.*.microsoft.com'
-    - '*.*.xboxlive.com'
-    - '*.msftncsi.com'
-    - '*.msftconnecttest.com'
-    - '*.mcdn.bilivideo.cn'
+    - "+.stun.*.*"
+    - "+.stun.*.*.*"
+    - "+.stun.*.*.*.*"
+    - "lens.l.google.com"
+    - "*.n.n.srv.nintendo.net"
+    - "+.stun.playstation.net"
+    - "xbox.*.*.microsoft.com"
+    - "*.*.xboxlive.com"
+    - "*.msftncsi.com"
+    - "*.msftconnecttest.com"
+    - "*.mcdn.bilivideo.cn"
+
+    # 原脚本规则
+    - "rule-set:private"
+    - "rule-set:fakeip_filter"
+    - "rule-set:geolocation-cn"
 
   skip-cert-verify: false
 
 
 # ============================================================
-# 代理提供者
+# Hosts
+# ============================================================
+
+hosts:
+
+  cloudflare-dns.com:
+    - 1.1.1.1
+    - 1.0.0.1
+
+  dns.google:
+    - 8.8.8.8
+    - 8.8.4.4
+
+  services.googleapis.cn:
+    - services.googleapis.com
+
+
+# ============================================================
+# 远程订阅
 # ============================================================
 
 proxy-providers:
 
   subscription:
     url: "你的订阅连接"
+
     interval: 3600
+
     path: ./providers/subscription.yaml
 
     health-check:
@@ -74,181 +126,822 @@ proxy-providers:
 
 
 # ============================================================
-# 规则提供者
+# 代理组
+# ============================================================
+
+proxy-groups:
+
+  # ----------------------------------------------------------
+  # 1. 手动选择
+  # ----------------------------------------------------------
+
+  - name: 手动选择
+    type: select
+
+    proxies:
+      - 自动选择
+      - 负载均衡
+
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+
+      - DIRECT
+
+
+  # ----------------------------------------------------------
+  # 2. 自动选择
+  # ----------------------------------------------------------
+
+  - name: 自动选择
+    type: url-test
+
+    include-all: true
+
+    filter: '^(?!.*(?:官网|公告|通知|套餐|剩余|流量|到期|续费|客服|群|频道|订阅|返利|循环|网站|网址|获取|机场|备用|过期|已用|联系|邮箱|工单|国内|电报|超时|优惠|福利|邀请|失联|公益|发布|通路|登录|禁止|定时|渠道|余额|本站|刷新|导航|建议|重置|过滤|⚠️|@|t\.me|\.com|traffic)).*$'
+
+    url: https://www.apple.com/library/test/success.html
+
+    interval: 600
+    tolerance: 50
+
+    lazy: true
+
+    timeout: 3000
+
+    max-failed-times: 3
+
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
+
+
+  # ----------------------------------------------------------
+  # 3. 负载均衡
+  # ----------------------------------------------------------
+
+  - name: 负载均衡
+    type: load-balance
+
+    include-all: true
+
+    filter: '^(?!.*(?:官网|公告|通知|套餐|剩余|流量|到期|续费|客服|群|频道|订阅|返利|循环|网站|网址|获取|机场|备用|过期|已用|联系|邮箱|工单|国内|电报|超时|优惠|福利|邀请|失联|公益|发布|通路|登录|禁止|定时|渠道|余额|本站|刷新|导航|建议|重置|过滤|⚠️|@|t\.me|\.com|traffic)).*$'
+
+    strategy: consistent-hashing
+
+    url: https://www.apple.com/library/test/success.html
+
+    interval: 600
+
+    lazy: true
+
+    timeout: 3000
+
+    max-failed-times: 3
+
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Round_Robin.png
+
+
+  # ==========================================================
+  # 服务策略组
+  # ==========================================================
+
+  # ----------------------------------------------------------
+  # FCM
+  # ----------------------------------------------------------
+
+  - name: FCM
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+      - DIRECT
+
+
+  # ----------------------------------------------------------
+  # YouTube
+  # ----------------------------------------------------------
+
+  - name: YouTube
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+      - DIRECT
+
+
+  # ----------------------------------------------------------
+  # Google
+  # ----------------------------------------------------------
+
+  - name: Google
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+      - DIRECT
+
+
+  # ----------------------------------------------------------
+  # AI
+  # ----------------------------------------------------------
+
+  - name: AI
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 其它节点
+
+
+  # ----------------------------------------------------------
+  # Microsoft
+  # ----------------------------------------------------------
+
+  - name: Microsoft
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+      - DIRECT
+
+
+  # ----------------------------------------------------------
+  # Apple
+  # ----------------------------------------------------------
+
+  - name: Apple
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+      - DIRECT
+
+
+  # ----------------------------------------------------------
+  # Telegram
+  # ----------------------------------------------------------
+
+  - name: Telegram
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+      - DIRECT
+
+
+  # ----------------------------------------------------------
+  # Steam
+  # ----------------------------------------------------------
+
+  - name: Steam
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+      - DIRECT
+
+
+  # ----------------------------------------------------------
+  # TikTok
+  # ----------------------------------------------------------
+
+  - name: TikTok
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 其它节点
+
+
+  # ----------------------------------------------------------
+  # Twitter
+  # ----------------------------------------------------------
+
+  - name: Twitter
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇭🇰 香港
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 🇹🇼 台湾
+      - 其它节点
+
+
+  # ----------------------------------------------------------
+  # Instagram
+  # ----------------------------------------------------------
+
+  - name: Instagram
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+      - DIRECT
+
+
+  # ----------------------------------------------------------
+  # Netflix
+  # ----------------------------------------------------------
+
+  - name: Netflix
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+
+
+  # ----------------------------------------------------------
+  # Emby
+  # ----------------------------------------------------------
+
+  - name: Emby
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+      - DIRECT
+
+
+  # ----------------------------------------------------------
+  # PikPak
+  # ----------------------------------------------------------
+
+  - name: PikPak
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+
+
+  # ----------------------------------------------------------
+  # Spotify
+  # ----------------------------------------------------------
+
+  - name: Spotify
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+      - DIRECT
+
+
+  # ----------------------------------------------------------
+  # Crypto
+  # ----------------------------------------------------------
+
+  - name: Crypto
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+
+
+  # ----------------------------------------------------------
+  # EHentai
+  # ----------------------------------------------------------
+
+  - name: EHentai
+    type: select
+
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+
+
+  # ----------------------------------------------------------
+  # AdBlock
+  # ----------------------------------------------------------
+
+  - name: AdBlock
+    type: select
+
+    proxies:
+      - REJECT
+      - DIRECT
+
+
+  # ==========================================================
+  # 默认代理
+  # ==========================================================
+
+  - name: 默认代理
+    type: select
+
+    proxies:
+      - 自动选择
+      - 负载均衡
+
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
+
+      - 手动选择
+      - DIRECT
+
+
+  # ==========================================================
+  # 倍率节点
+  # ==========================================================
+
+  # ----------------------------------------------------------
+  # 低倍率节点
+  # ----------------------------------------------------------
+
+  - name: 低倍率节点
+    type: url-test
+
+    include-all: true
+
+    filter: '(?i)^(?=.*(?:0\.[0-9]+x?|免费|低倍|低倍率|download)).*$'
+
+    url: https://www.apple.com/library/test/success.html
+
+    interval: 600
+    tolerance: 50
+    lazy: true
+    timeout: 3000
+
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Low.png
+
+
+  # ----------------------------------------------------------
+  # 高倍率节点
+  # ----------------------------------------------------------
+
+  - name: 高倍率节点
+    type: url-test
+
+    include-all: true
+
+    filter: '(?i)^(?=.*(?:[2-9](?:\.[0-9]+)?x|[1-9][0-9]+x|高倍|高倍率)).*$'
+
+    url: https://www.apple.com/library/test/success.html
+
+    interval: 600
+    tolerance: 50
+    lazy: true
+    timeout: 3000
+
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/High.png
+
+
+  # ==========================================================
+  # 地区节点组
+  #
+  # 注意：
+  # 这里已经没有：
+  #
+  # 香港-自动选择
+  # 台湾-自动选择
+  # 日本-自动选择
+  # 新加坡-自动选择
+  # 美国-自动选择
+  #
+  # 每个地区组本身就是 url-test 自动测速组
+  # ==========================================================
+
+
+  # ----------------------------------------------------------
+  # 🇭🇰 香港
+  # ----------------------------------------------------------
+
+  - name: 🇭🇰 香港
+    type: url-test
+
+    include-all: true
+
+    filter: '(?i)^(?=.*(?:🇭🇰|香港|HKG|Hong\s*Kong)).*$'
+
+    url: https://www.apple.com/library/test/success.html
+
+    interval: 600
+    tolerance: 50
+
+    lazy: true
+    timeout: 3000
+
+    max-failed-times: 3
+
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png
+
+
+  # ----------------------------------------------------------
+  # 🇹🇼 台湾
+  # ----------------------------------------------------------
+
+  - name: 🇹🇼 台湾
+    type: url-test
+
+    include-all: true
+
+    filter: '(?i)^(?=.*(?:🇹🇼|台湾|台北|高雄|TWN|Taiwan)).*$'
+
+    url: https://www.apple.com/library/test/success.html
+
+    interval: 600
+    tolerance: 50
+
+    lazy: true
+    timeout: 3000
+
+    max-failed-times: 3
+
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Taiwan.png
+
+
+  # ----------------------------------------------------------
+  # 🇯🇵 日本
+  # ----------------------------------------------------------
+
+  - name: 🇯🇵 日本
+    type: url-test
+
+    include-all: true
+
+    filter: '(?i)^(?=.*(?:🇯🇵|日本|东京|大阪|京都|JPN|Japan)).*$'
+
+    url: https://www.apple.com/library/test/success.html
+
+    interval: 600
+    tolerance: 50
+
+    lazy: true
+    timeout: 3000
+
+    max-failed-times: 3
+
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png
+
+
+  # ----------------------------------------------------------
+  # 🇸🇬 新加坡
+  # ----------------------------------------------------------
+
+  - name: 🇸🇬 新加坡
+    type: url-test
+
+    include-all: true
+
+    filter: '(?i)^(?=.*(?:🇸🇬|新加坡|狮城|SGP|Singapore)).*$'
+
+    url: https://www.apple.com/library/test/success.html
+
+    interval: 600
+    tolerance: 50
+
+    lazy: true
+    timeout: 3000
+
+    max-failed-times: 3
+
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png
+
+
+  # ----------------------------------------------------------
+  # 🇺🇸 美国
+  # ----------------------------------------------------------
+
+  - name: 🇺🇸 美国
+    type: url-test
+
+    include-all: true
+
+    filter: '(?i)^(?=.*(?:🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States)).*$'
+
+    url: https://www.apple.com/library/test/success.html
+
+    interval: 600
+    tolerance: 50
+
+    lazy: true
+    timeout: 3000
+
+    max-failed-times: 3
+
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png
+
+
+  # ----------------------------------------------------------
+  # 其它节点
+  # ----------------------------------------------------------
+
+  - name: 其它节点
+    type: select
+
+    include-all: true
+
+    filter: '(?i)^(?!.*(?:🇭🇰|香港|HKG|Hong\s*Kong|🇹🇼|台湾|台北|高雄|TWN|Taiwan|🇯🇵|日本|东京|大阪|京都|JPN|Japan|🇸🇬|新加坡|狮城|SGP|Singapore|🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States|官网|公告|通知|套餐|剩余|流量|到期|续费|客服|群|频道|订阅|返利|循环|网站|网址|获取|机场|备用|过期|已用|联系|邮箱|工单|国内|电报|超时|优惠|福利|邀请|失联|公益|发布|通路|登录|禁止|定时|渠道|余额|本站|刷新|导航|建议|重置|过滤|⚠️|@|t\.me|\.com|traffic)).*$'
+
+
+# ============================================================
+# Rule Providers
 # ============================================================
 
 rule-providers:
 
   # ----------------------------------------------------------
-  # 私有 / 国内
+  # 基础
   # ----------------------------------------------------------
 
   private:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/private.mrs
-    path: ./ruleset/private.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs
 
   private_ip:
     type: http
     behavior: ipcidr
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/private.mrs
-    path: ./ruleset/private_ip.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/private.mrs
 
   games_cn:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/category-games@cn.mrs
-    path: ./ruleset/games_cn.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Game/GameCN/GameCN.mrs
 
   epicgames:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/epicgames.mrs
-    path: ./ruleset/epicgames.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/EpicGames/EpicGames.mrs
 
   nvidia_cn:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/nvidia@cn.mrs
-    path: ./ruleset/nvidia_cn.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Nvidia/Nvidia.mrs
 
   apple_cn:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/apple@cn.mrs
-    path: ./ruleset/apple_cn.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.mrs
 
   microsoft_cn:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/microsoft@cn.mrs
-    path: ./ruleset/microsoft_cn.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.mrs
+
+  geolocation-cn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs
 
   cn_ip:
     type: http
     behavior: ipcidr
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/cn.mrs
-    path: ./ruleset/cn_ip.mrs
     interval: 86400
-
-  cn_additional:
-    type: http
-    behavior: domain
-    format: mrs
-    url: https://static-file-global.353355.xyz/rules/cn-additional-list.mrs
-    path: ./ruleset/cn_additional.mrs
-    interval: 86400
-
-  cn:
-    type: http
-    behavior: domain
-    format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/cn.mrs
-    path: ./ruleset/cn.mrs
-    interval: 86400
-
-
-  # ----------------------------------------------------------
-  # 国外
-  # ----------------------------------------------------------
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs
 
   geolocation-!cn:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/geolocation-!cn.mrs
-    path: ./ruleset/geolocation-!cn.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs
+
+  fakeip_filter:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/fakeip-filter.mrs
+
+  cn_additional:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs
+
+  cn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs
 
 
   # ----------------------------------------------------------
-  # Google / YouTube / AI
+  # FCM
   # ----------------------------------------------------------
 
   googlefcm:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/googlefcm.mrs
-    path: ./ruleset/googlefcm.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GoogleFCM/GoogleFCM.mrs
+
+
+  # ----------------------------------------------------------
+  # YouTube
+  # ----------------------------------------------------------
 
   youtube:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/youtube.mrs
-    path: ./ruleset/youtube.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/YouTube/YouTube.mrs
+
+
+  # ----------------------------------------------------------
+  # Google
+  # ----------------------------------------------------------
 
   google:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/google.mrs
-    path: ./ruleset/google.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Google/Google.mrs
 
   google_ip:
     type: http
     behavior: ipcidr
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/google.mrs
-    path: ./ruleset/google_ip.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Google/Google_IP.mrs
+
+
+  # ----------------------------------------------------------
+  # AI
+  # ----------------------------------------------------------
 
   ai:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/category-ai-!cn.mrs
-    path: ./ruleset/ai.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AI/AI.mrs
 
 
   # ----------------------------------------------------------
-  # GitHub / Microsoft / Apple
+  # GitHub
   # ----------------------------------------------------------
 
   github:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/github.mrs
-    path: ./ruleset/github.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GitHub/GitHub.mrs
+
+
+  # ----------------------------------------------------------
+  # Microsoft
+  # ----------------------------------------------------------
 
   microsoft:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/microsoft.mrs
-    path: ./ruleset/microsoft.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.mrs
+
+
+  # ----------------------------------------------------------
+  # Apple
+  # ----------------------------------------------------------
 
   apple:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/apple.mrs
-    path: ./ruleset/apple.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.mrs
 
 
   # ----------------------------------------------------------
@@ -259,17 +952,15 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/telegram.mrs
-    path: ./ruleset/telegram.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Telegram/Telegram.mrs
 
   telegram_ip:
     type: http
     behavior: ipcidr
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/telegram.mrs
-    path: ./ruleset/telegram_ip.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Telegram/Telegram_IP.mrs
 
 
   # ----------------------------------------------------------
@@ -280,17 +971,15 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/steam.mrs
-    path: ./ruleset/steam.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Steam/Steam.mrs
 
   steam_ip:
     type: http
     behavior: ipcidr
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/steam.mrs
-    path: ./ruleset/steam_ip.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Steam/Steam_IP.mrs
 
 
   # ----------------------------------------------------------
@@ -301,38 +990,34 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/tiktok.mrs
-    path: ./ruleset/tiktok.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/TikTok/TikTok.mrs
 
   tiktok_ip:
     type: http
     behavior: ipcidr
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/tiktok.mrs
-    path: ./ruleset/tiktok_ip.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/TikTok/TikTok_IP.mrs
 
 
   # ----------------------------------------------------------
-  # Twitter / X
+  # Twitter
   # ----------------------------------------------------------
 
   twitter:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/twitter.mrs
-    path: ./ruleset/twitter.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Twitter/Twitter.mrs
 
   twitter_ip:
     type: http
     behavior: ipcidr
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/twitter.mrs
-    path: ./ruleset/twitter_ip.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Twitter/Twitter_IP.mrs
 
 
   # ----------------------------------------------------------
@@ -343,9 +1028,8 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/instagram.mrs
-    path: ./ruleset/instagram.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Instagram/Instagram.mrs
 
 
   # ----------------------------------------------------------
@@ -356,17 +1040,15 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/netflix.mrs
-    path: ./ruleset/netflix.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Netflix/Netflix.mrs
 
   netflix_ip:
     type: http
     behavior: ipcidr
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/netflix.mrs
-    path: ./ruleset/netflix_ip.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Netflix/Netflix_IP.mrs
 
 
   # ----------------------------------------------------------
@@ -377,9 +1059,8 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/666OS/rules@release/mihomo/domain/Emby.mrs
-    path: ./ruleset/emby.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Emby/Emby.mrs
 
 
   # ----------------------------------------------------------
@@ -390,9 +1071,8 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/pikpak.mrs
-    path: ./ruleset/pikpak.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/PikPak/PikPak.mrs
 
 
   # ----------------------------------------------------------
@@ -403,17 +1083,15 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/spotify.mrs
-    path: ./ruleset/spotify.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Spotify/Spotify.mrs
 
   spotify_ip:
     type: http
     behavior: ipcidr
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/spotify.mrs
-    path: ./ruleset/spotify_ip.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Spotify/Spotify_IP.mrs
 
 
   # ----------------------------------------------------------
@@ -424,9 +1102,8 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/category-cryptocurrency.mrs
-    path: ./ruleset/cryptocurrency.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Cryptocurrency/Cryptocurrency.mrs
 
 
   # ----------------------------------------------------------
@@ -437,467 +1114,26 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/ehentai.mrs
-    path: ./ruleset/ehentai.mrs
     interval: 86400
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/EHentai/EHentai.mrs
 
 
 # ============================================================
-# 策略组
-# ============================================================
-
-proxy-groups:
-
-  # ==========================================================
-  # 地区节点
-  # ==========================================================
-
-  # ----------------------------------------------------------
-  # 🇭🇰 香港
-  # ----------------------------------------------------------
-
-  - name: 🇭🇰 香港
-    type: select
-    include-all: true
-    filter: '^(?=.*(?:🇭🇰|香港|HKG|Hong\s*Kong)).*$'
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png
-
-
-  - name: 🇭🇰 香港-自动选择
-    type: url-test
-    include-all: true
-    filter: '^(?=.*(?:🇭🇰|香港|HKG|Hong\s*Kong)).*$'
-    url: https://www.apple.com/library/test/success.html
-    interval: 600
-    tolerance: 50
-    lazy: true
-    timeout: 3000
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
-
-
-  # ----------------------------------------------------------
-  # 🇹🇼 台湾
-  # ----------------------------------------------------------
-
-  - name: 🇹🇼 台湾
-    type: select
-    include-all: true
-    filter: '^(?=.*(?:🇹🇼|台湾|台北|高雄|TWN|Taiwan)).*$'
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Taiwan.png
-
-
-  - name: 🇹🇼 台湾-自动选择
-    type: url-test
-    include-all: true
-    filter: '^(?=.*(?:🇹🇼|台湾|台北|高雄|TWN|Taiwan)).*$'
-    url: https://www.apple.com/library/test/success.html
-    interval: 600
-    tolerance: 50
-    lazy: true
-    timeout: 3000
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
-
-
-  # ----------------------------------------------------------
-  # 🇯🇵 日本
-  # ----------------------------------------------------------
-
-  - name: 🇯🇵 日本
-    type: select
-    include-all: true
-    filter: '^(?=.*(?:🇯🇵|日本|东京|大阪|京都|JPN|Japan)).*$'
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png
-
-
-  - name: 🇯🇵 日本-自动选择
-    type: url-test
-    include-all: true
-    filter: '^(?=.*(?:🇯🇵|日本|东京|大阪|京都|JPN|Japan)).*$'
-    url: https://www.apple.com/library/test/success.html
-    interval: 600
-    tolerance: 50
-    lazy: true
-    timeout: 3000
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
-
-
-  # ----------------------------------------------------------
-  # 🇸🇬 新加坡
-  # ----------------------------------------------------------
-
-  - name: 🇸🇬 新加坡
-    type: select
-    include-all: true
-    filter: '^(?=.*(?:🇸🇬|新加坡|狮城|SGP|Singapore)).*$'
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png
-
-
-  - name: 🇸🇬 新加坡-自动选择
-    type: url-test
-    include-all: true
-    filter: '^(?=.*(?:🇸🇬|新加坡|狮城|SGP|Singapore)).*$'
-    url: https://www.apple.com/library/test/success.html
-    interval: 600
-    tolerance: 50
-    lazy: true
-    timeout: 3000
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
-
-
-  # ----------------------------------------------------------
-  # 🇺🇸 美国
-  # ----------------------------------------------------------
-
-  - name: 🇺🇸 美国
-    type: select
-    include-all: true
-    filter: '^(?=.*(?:🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States)).*$'
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png
-
-
-  - name: 🇺🇸 美国-自动选择
-    type: url-test
-    include-all: true
-    filter: '^(?=.*(?:🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States)).*$'
-    url: https://www.apple.com/library/test/success.html
-    interval: 600
-    tolerance: 50
-    lazy: true
-    timeout: 3000
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
-
-
-  # ----------------------------------------------------------
-  # 其它节点
-  # ----------------------------------------------------------
-
-  - name: 其它节点
-    type: select
-    include-all: true
-    filter: '^(?!.*(?:🇭🇰|香港|HKG|Hong\s*Kong|🇹🇼|台湾|台北|高雄|TWN|Taiwan|🇯🇵|日本|东京|大阪|京都|JPN|Japan|🇸🇬|新加坡|狮城|SGP|Singapore|🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States)).*$'
-
-
-  # ==========================================================
-  # 核心策略
-  # ==========================================================
-
-  - name: 手动选择
-    type: select
-    proxies:
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-      - 自动选择
-      - 负载均衡
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Static.png
-
-
-  - name: 自动选择
-    type: url-test
-    include-all: true
-    filter: '^(?!.*(?:官网|公告|通知|套餐|剩余|流量|到期|续费|客服|群|频道|订阅)).*$'
-    url: https://www.apple.com/library/test/success.html
-    interval: 600
-    tolerance: 50
-    lazy: true
-    timeout: 3000
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
-
-
-  - name: 负载均衡
-    type: load-balance
-    include-all: true
-    filter: '^(?!.*(?:官网|公告|通知|套餐|剩余|流量|到期|续费|客服|群|频道|订阅)).*$'
-    strategy: consistent-hashing
-    url: https://www.apple.com/library/test/success.html
-    interval: 600
-    lazy: true
-    timeout: 3000
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Round_Robin.png
-
-
-  # ==========================================================
-  # 服务策略组
-  # ==========================================================
-
-  - name: FCM
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/MiToverG422/Qure@master/IconSet/Color/fcm.png
-
-
-  - name: YouTube
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/YouTube.png
-
-
-  - name: Google
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Google_Search.png
-
-
-  - name: AI
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ChatGPT.png
-
-
-  - name: Microsoft
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Microsoft.png
-
-
-  - name: Apple
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple.png
-
-
-  - name: Telegram
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Telegram.png
-
-
-  - name: Steam
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Steam.png
-
-
-  - name: TikTok
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/TikTok.png
-
-
-  - name: Twitter
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Twitter.png
-
-
-  - name: Instagram
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Instagram.png
-
-
-  - name: Netflix
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Netflix.png
-
-
-  - name: Emby
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Emby.png
-
-
-  - name: PikPak
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/03CNSoft/pikpak.png
-
-
-  - name: Spotify
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Spotify.png
-
-
-  - name: Crypto
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/04ProxySoft/Bitcoin.png
-
-
-  - name: EHentai
-    type: select
-    proxies:
-      - 默认代理
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 自动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Pornhub.png
-
-
-  # ==========================================================
-  # 默认代理
-  # ==========================================================
-
-  - name: 默认代理
-    type: select
-    proxies:
-      - 自动选择
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-      - 负载均衡
-      - 手动选择
-      - DIRECT
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png
-
-
-# ============================================================
-# 规则
+# Rules
 # ============================================================
 
 rules:
 
   # ----------------------------------------------------------
-  # 1. 私有网络 / 局域网
+  # 私有网络
   # ----------------------------------------------------------
 
   - RULE-SET,private,DIRECT
-  - RULE-SET,private_ip,DIRECT,no-resolve
+  - RULE-SET,private_ip,DIRECT
 
 
   # ----------------------------------------------------------
-  # 2. 指定国内服务
+  # 国内服务
   # ----------------------------------------------------------
 
   - RULE-SET,games_cn,DIRECT
@@ -906,157 +1142,201 @@ rules:
   - RULE-SET,apple_cn,DIRECT
   - RULE-SET,microsoft_cn,DIRECT
 
-  - DOMAIN,fsend.cn,DIRECT
-  - DOMAIN,international-gfe.download.nvidia.com,DIRECT
+
+  # ----------------------------------------------------------
+  # 自定义直连规则
+  # ----------------------------------------------------------
+
+  - DOMAIN-SUFFIX,fsend.cn,DIRECT
+  - DOMAIN-SUFFIX,international-gfe.download.nvidia.com,DIRECT
   - DOMAIN-KEYWORD,yusen,DIRECT
 
 
   # ----------------------------------------------------------
-  # 3. Google / YouTube / AI
-  #
-  # 注意：
-  # 已删除国外 UDP/443 REJECT
-  #
-  # 原规则会直接拦截大量 HY2 / QUIC 流量。
+  # Google FCM
   # ----------------------------------------------------------
 
   - RULE-SET,googlefcm,FCM
 
+
+  # ----------------------------------------------------------
+  # YouTube
+  # ----------------------------------------------------------
+
   - RULE-SET,youtube,YouTube
 
+
+  # ----------------------------------------------------------
+  # Google
+  # ----------------------------------------------------------
+
   - RULE-SET,google,Google
-  - RULE-SET,google_ip,Google,no-resolve
+  - RULE-SET,google_ip,Google
+
+
+  # ----------------------------------------------------------
+  # AI
+  # ----------------------------------------------------------
 
   - RULE-SET,ai,AI
 
 
   # ----------------------------------------------------------
-  # 4. GitHub
+  # GitHub
   # ----------------------------------------------------------
 
   - RULE-SET,github,默认代理
 
 
   # ----------------------------------------------------------
-  # 5. Microsoft / Apple
+  # Microsoft
   # ----------------------------------------------------------
 
   - RULE-SET,microsoft,Microsoft
+
+
+  # ----------------------------------------------------------
+  # Apple
+  # ----------------------------------------------------------
+
   - RULE-SET,apple,Apple
 
 
   # ----------------------------------------------------------
-  # 6. Telegram
+  # Telegram
   # ----------------------------------------------------------
 
   - RULE-SET,telegram,Telegram
-  - RULE-SET,telegram_ip,Telegram,no-resolve
+  - RULE-SET,telegram_ip,Telegram
 
 
   # ----------------------------------------------------------
-  # 7. Steam
+  # Steam
   # ----------------------------------------------------------
 
   - RULE-SET,steam,Steam
-  - RULE-SET,steam_ip,Steam,no-resolve
+  - RULE-SET,steam_ip,Steam
 
 
   # ----------------------------------------------------------
-  # 8. TikTok
+  # TikTok
   # ----------------------------------------------------------
 
   - RULE-SET,tiktok,TikTok
-  - RULE-SET,tiktok_ip,TikTok,no-resolve
+  - RULE-SET,tiktok_ip,TikTok
 
 
   # ----------------------------------------------------------
-  # 9. Twitter / X
+  # Twitter
   # ----------------------------------------------------------
 
   - RULE-SET,twitter,Twitter
-  - RULE-SET,twitter_ip,Twitter,no-resolve
+  - RULE-SET,twitter_ip,Twitter
 
 
   # ----------------------------------------------------------
-  # 10. Instagram
+  # Instagram
   # ----------------------------------------------------------
 
   - RULE-SET,instagram,Instagram
 
 
   # ----------------------------------------------------------
-  # 11. Netflix
+  # Netflix
   # ----------------------------------------------------------
 
   - RULE-SET,netflix,Netflix
-  - RULE-SET,netflix_ip,Netflix,no-resolve
+  - RULE-SET,netflix_ip,Netflix
 
 
   # ----------------------------------------------------------
-  # 12. Emby
+  # Emby
   # ----------------------------------------------------------
 
   - RULE-SET,emby,Emby
-  - DOMAIN-SUFFIX,mb3admin.com,Emby
-  - DOMAIN-SUFFIX,nubebelle.com,Emby
-  - DOMAIN-KEYWORD,emby,Emby
-  - PROCESS-NAME,RodelPlayer.App.exe,Emby
 
 
   # ----------------------------------------------------------
-  # 13. PikPak
+  # PikPak
   # ----------------------------------------------------------
 
   - RULE-SET,pikpak,PikPak
 
 
   # ----------------------------------------------------------
-  # 14. Spotify
+  # Spotify
   # ----------------------------------------------------------
 
   - RULE-SET,spotify,Spotify
-  - RULE-SET,spotify_ip,Spotify,no-resolve
+  - RULE-SET,spotify_ip,Spotify
 
 
   # ----------------------------------------------------------
-  # 15. Cryptocurrency
+  # Cryptocurrency
   # ----------------------------------------------------------
 
   - RULE-SET,cryptocurrency,Crypto
 
 
   # ----------------------------------------------------------
-  # 16. EHentai
+  # EHentai
   # ----------------------------------------------------------
 
   - RULE-SET,ehentai,EHentai
 
 
   # ----------------------------------------------------------
-  # 17. 中国大陆
+  # 中国大陆
   # ----------------------------------------------------------
 
   - RULE-SET,cn,DIRECT
   - RULE-SET,cn_additional,DIRECT
-  - RULE-SET,cn_ip,DIRECT,no-resolve
-
-
-  # ----------------------------------------------------------
-  # 18. 中国大陆 IP
-  # ----------------------------------------------------------
+  - RULE-SET,cn_ip,DIRECT
 
   - GEOIP,CN,DIRECT
 
 
   # ----------------------------------------------------------
-  # 19. 国外
+  # 非中国大陆
   # ----------------------------------------------------------
 
   - RULE-SET,geolocation-!cn,默认代理
 
 
   # ----------------------------------------------------------
-  # 20. 最终兜底
+  # 最终规则
   # ----------------------------------------------------------
 
   - MATCH,默认代理
+
+
+# ============================================================
+# TUN
+# ============================================================
+
+tun:
+  enable: true
+
+  stack: system
+
+  auto-route: true
+  auto-detect-interface: true
+
+  strict-route: true
+
+  auto-redirect: true
+
+  dns-hijack:
+    - any:53
+    - tcp://any:53
+
+
+# ============================================================
+# NTP
+# ============================================================
+
+ntp:
+  enable: true
+  server: ntp.aliyun.com
+  port: 123
+  interval: 60
