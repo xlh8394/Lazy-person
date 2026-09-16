@@ -1,0 +1,504 @@
+# ============================================================
+# Stash PC (Windows) 配置
+# 基于 mihomoScript.js (AIsouler/Lazy-person) 逻辑优化
+# 适配 Stash 官方配置规范
+# ============================================================
+
+mode: rule
+log-level: info
+
+# Windows 后台服务推荐关闭 allow-lan（如需局域网共享可改为 true）
+allow-lan: false
+
+# DNS 配置（按 Stash 官方推荐优化）
+dns:
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+    - system
+  nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+  nameserver-policy:
+    'geosite:cn':
+      - 223.5.5.5
+      - 119.29.29.29
+  fake-ip-filter:
+    - '+.stun.*.*'
+    - '+.stun.*.*.*'
+    - '+.stun.*.*.*.*'
+    - 'lens.l.google.com'
+    - '*.n.n.srv.nintendo.net'
+    - '+.stun.playstation.net'
+    - 'xbox.*.*.microsoft.com'
+    - '*.*.xboxlive.com'
+    - '*.msftncsi.com'
+    - '*.msftconnecttest.com'
+    - '*.mcdn.bilivideo.cn'
+  skip-cert-verify: true
+
+# ============================================================
+# 代理提供者（请替换成你自己的机场订阅）
+# ============================================================
+proxy-providers:
+  # 示例：把下面 url 换成你的订阅链接
+   subscription:
+     type: http
+     url: "https://your-airport-subscribe-url"
+     interval: 3600
+     path: ./providers/subscription.yaml
+     health-check:
+       enable: true
+       interval: 600
+       url: https://www.apple.com/library/test/success.html
+
+# ============================================================
+# 规则提供者（与原脚本保持一致，使用 MRS 格式）
+# ============================================================
+rule-providers:
+  # ----- 直连相关 -----
+  private:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/private.mrs
+    path: ./ruleset/private.mrs
+    interval: 86400
+  private_ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/private.mrs
+    path: ./ruleset/private_ip.mrs
+    interval: 86400
+  games_cn:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/category-games@cn.mrs
+    path: ./ruleset/games_cn.mrs
+    interval: 86400
+  epicgames:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/epicgames.mrs
+    path: ./ruleset/epicgames.mrs
+    interval: 86400
+  nvidia_cn:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/nvidia@cn.mrs
+    path: ./ruleset/nvidia_cn.mrs
+    interval: 86400
+  apple_cn:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/apple@cn.mrs
+    path: ./ruleset/apple_cn.mrs
+    interval: 86400
+  microsoft_cn:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/microsoft@cn.mrs
+    path: ./ruleset/microsoft_cn.mrs
+    interval: 86400
+  geolocation-cn:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/geolocation-cn.mrs
+    path: ./ruleset/geolocation-cn.mrs
+    interval: 86400
+  cn_ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/cn.mrs
+    path: ./ruleset/cn_ip.mrs
+    interval: 86400
+  cn_additional:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://static-file-global.353355.xyz/rules/cn-additional-list.mrs
+    path: ./ruleset/cn_additional.mrs
+    interval: 86400
+  cn:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/cn.mrs
+    path: ./ruleset/cn.mrs
+    interval: 86400
+
+  # ----- 国外 / 代理相关 -----
+  geolocation-!cn:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/geolocation-!cn.mrs
+    path: ./ruleset/geolocation-!cn.mrs
+    interval: 86400
+
+  # ----- 服务分流规则集 -----
+  googlefcm:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/googlefcm.mrs
+    path: ./ruleset/googlefcm.mrs
+    interval: 86400
+  youtube:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/youtube.mrs
+    path: ./ruleset/youtube.mrs
+    interval: 86400
+  google:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/google.mrs
+    path: ./ruleset/google.mrs
+    interval: 86400
+  google_ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/google.mrs
+    path: ./ruleset/google_ip.mrs
+    interval: 86400
+  ai:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/category-ai-!cn.mrs
+    path: ./ruleset/ai.mrs
+    interval: 86400
+  github:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/github.mrs
+    path: ./ruleset/github.mrs
+    interval: 86400
+  microsoft:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/microsoft.mrs
+    path: ./ruleset/microsoft.mrs
+    interval: 86400
+  apple:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/apple.mrs
+    path: ./ruleset/apple.mrs
+    interval: 86400
+  telegram:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/telegram.mrs
+    path: ./ruleset/telegram.mrs
+    interval: 86400
+  telegram_ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/telegram.mrs
+    path: ./ruleset/telegram_ip.mrs
+    interval: 86400
+  steam:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/steam.mrs
+    path: ./ruleset/steam.mrs
+    interval: 86400
+  steam_ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/steam.mrs
+    path: ./ruleset/steam_ip.mrs
+    interval: 86400
+  tiktok:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/tiktok.mrs
+    path: ./ruleset/tiktok.mrs
+    interval: 86400
+  tiktok_ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/tiktok.mrs
+    path: ./ruleset/tiktok_ip.mrs
+    interval: 86400
+  twitter:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/twitter.mrs
+    path: ./ruleset/twitter.mrs
+    interval: 86400
+  twitter_ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/twitter.mrs
+    path: ./ruleset/twitter_ip.mrs
+    interval: 86400
+  instagram:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/instagram.mrs
+    path: ./ruleset/instagram.mrs
+    interval: 86400
+  netflix:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/netflix.mrs
+    path: ./ruleset/netflix.mrs
+    interval: 86400
+  netflix_ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/netflix.mrs
+    path: ./ruleset/netflix_ip.mrs
+    interval: 86400
+  emby:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/666OS/rules@release/mihomo/domain/Emby.mrs
+    path: ./ruleset/emby.mrs
+    interval: 86400
+  pikpak:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/pikpak.mrs
+    path: ./ruleset/pikpak.mrs
+    interval: 86400
+  spotify:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/spotify.mrs
+    path: ./ruleset/spotify.mrs
+    interval: 86400
+  spotify_ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geoip/spotify.mrs
+    path: ./ruleset/spotify_ip.mrs
+    interval: 86400
+  cryptocurrency:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/category-cryptocurrency.mrs
+    path: ./ruleset/cryptocurrency.mrs
+    interval: 86400
+  ehentai:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/geosite/ehentai.mrs
+    path: ./ruleset/ehentai.mrs
+    interval: 86400
+
+# ============================================================
+# 策略组（对应原脚本 baseGroups + serviceConfigs）
+# ============================================================
+proxy-groups:
+  # 基础策略组
+  - name: 手动选择
+    type: select
+    proxies:
+      - 自动选择
+      - 负载均衡
+      - DIRECT
+      # 下面会自动包含订阅节点（通过 include-all 或手动添加）
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Static.png
+
+  - name: 自动选择
+    type: url-test
+    url: https://www.apple.com/library/test/success.html
+    interval: 600
+    tolerance: 50
+    lazy: true
+    proxies: []          # 请在 Stash 中勾选「包含所有代理」或手动填入
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
+
+  - name: 负载均衡
+    type: load-balance
+    strategy: sticky-sessions
+    url: https://www.apple.com/library/test/success.html
+    interval: 600
+    proxies: []
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Round_Robin.png
+
+  # 服务分流组（默认指向手动选择，可自行改）
+  - name: FCM
+    type: select
+    proxies: [手动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/MiToverG422/Qure@master/IconSet/Color/fcm.png
+
+  - name: YouTube
+    type: select
+    proxies: [手动选择, 自动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/YouTube.png
+
+  - name: Google
+    type: select
+    proxies: [手动选择, 自动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Google_Search.png
+
+  - name: AI
+    type: select
+    proxies: [手动选择, 自动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ChatGPT.png
+
+  - name: Microsoft
+    type: select
+    proxies: [手动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Microsoft.png
+
+  - name: Apple
+    type: select
+    proxies: [手动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple.png
+
+  - name: Telegram
+    type: select
+    proxies: [手动选择, 自动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Telegram.png
+
+  - name: Steam
+    type: select
+    proxies: [手动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Steam.png
+
+  - name: TikTok
+    type: select
+    proxies: [手动选择, 自动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/TikTok.png
+
+  - name: Twitter
+    type: select
+    proxies: [手动选择, 自动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Twitter.png
+
+  - name: Instagram
+    type: select
+    proxies: [手动选择, 自动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Instagram.png
+
+  - name: Netflix
+    type: select
+    proxies: [手动选择, 自动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Netflix.png
+
+  - name: Emby
+    type: select
+    proxies: [手动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Emby.png
+
+  - name: PikPak
+    type: select
+    proxies: [手动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/03CNSoft/pikpak.png
+
+  - name: Spotify
+    type: select
+    proxies: [手动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Spotify.png
+
+  - name: Crypto
+    type: select
+    proxies: [手动选择, 自动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/04ProxySoft/Bitcoin.png
+
+  - name: EHentai
+    type: select
+    proxies: [手动选择, 自动选择, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Pornhub.png
+
+  # 最终兜底组
+  - name: 默认代理
+    type: select
+    proxies: [手动选择, 自动选择, 负载均衡, DIRECT]
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png
+
+# ============================================================
+# 规则（按原脚本前置规则 + 服务分流顺序优化）
+# ============================================================
+rules:
+  # 1. 私有网络与国内直连（前置规则）
+  - RULE-SET,private,DIRECT
+  - RULE-SET,private_ip,DIRECT,no-resolve
+  - RULE-SET,games_cn,DIRECT
+  - RULE-SET,epicgames,DIRECT
+  - RULE-SET,nvidia_cn,DIRECT
+  - RULE-SET,apple_cn,DIRECT
+  - RULE-SET,microsoft_cn,DIRECT
+  - DOMAIN,fsend.cn,DIRECT
+  - DOMAIN,international-gfe.download.nvidia.com,DIRECT
+  - DOMAIN-KEYWORD,yusen,DIRECT
+
+  # 2. 屏蔽国外 QUIC（对应原脚本 blockForeignQuic）
+  - AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((OR,((RULE-SET,cn_additional),(RULE-SET,cn_ip,no-resolve)))))),REJECT
+
+  # 3. 服务分流
+  - RULE-SET,googlefcm,FCM
+  - RULE-SET,youtube,YouTube
+  - RULE-SET,google,Google
+  - RULE-SET,google_ip,Google,no-resolve
+  - RULE-SET,ai,AI
+  - RULE-SET,github,默认代理
+  - RULE-SET,microsoft,Microsoft
+  - RULE-SET,apple,Apple
+  - RULE-SET,telegram,Telegram
+  - RULE-SET,telegram_ip,Telegram,no-resolve
+  - RULE-SET,steam,Steam
+  - RULE-SET,steam_ip,Steam,no-resolve
+  - RULE-SET,tiktok,TikTok
+  - RULE-SET,tiktok_ip,TikTok,no-resolve
+  - RULE-SET,twitter,Twitter
+  - RULE-SET,twitter_ip,Twitter,no-resolve
+  - RULE-SET,instagram,Instagram
+  - RULE-SET,netflix,Netflix
+  - RULE-SET,netflix_ip,Netflix,no-resolve
+  - RULE-SET,emby,Emby
+  - DOMAIN-SUFFIX,mb3admin.com,Emby
+  - DOMAIN-SUFFIX,nubebelle.com,Emby
+  - DOMAIN-KEYWORD,emby,Emby
+  - PROCESS-NAME,RodelPlayer.App.exe,Emby
+  - RULE-SET,pikpak,PikPak
+  - RULE-SET,spotify,Spotify
+  - RULE-SET,spotify_ip,Spotify,no-resolve
+  - RULE-SET,cryptocurrency,Crypto
+  - RULE-SET,ehentai,EHentai
+
+  # 4. 国内与最终规则
+  - RULE-SET,geolocation-cn,DIRECT
+  - RULE-SET,cn,DIRECT
+  - RULE-SET,cn_ip,DIRECT,no-resolve
+  - RULE-SET,cn_additional,DIRECT
+  - GEOIP,CN,DIRECT
+  - RULE-SET,geolocation-!cn,默认代理
+  - MATCH,默认代理
