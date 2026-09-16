@@ -1,13 +1,9 @@
-# ============================================================
-# Stash Windows - 优化完整配置
-# 基于 AIsouler / MyClash mihomoScript.js 逻辑整理
-# ============================================================
-
 mode: rule
 log-level: info
-
 allow-lan: false
 bind-address: "*"
+
+mixed-port: 7890
 
 ipv6: true
 unified-delay: true
@@ -15,34 +11,30 @@ tcp-concurrent: true
 keep-alive-interval: 60
 find-process-mode: strict
 
-mixed-port: 7890
-
 external-controller: 127.0.0.1:9090
 external-ui: ui
-external-ui-url: https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip
+external-ui-url: https://github.com/Zephyruso/zashboard/archive/refs/heads/dist.zip
 
 profile:
   store-selected: true
   store-fake-ip: true
 
-# ============================================================
-# DNS
-# ============================================================
+ntp:
+  enable: true
+  server: ntp.aliyun.com
+  port: 123
+  interval: 60
 
 dns:
   enable: true
-
   ipv6: true
-
-  enhanced-mode: fake-ip
-
-  fake-ip-range: 198.18.0.1/15
-  fake-ip-range6: 2001:2::1/48
-
   use-hosts: true
   use-system-hosts: true
-
   cache-algorithm: arc
+
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/15
+  fake-ip-range6: 2001:2::1/48
 
   default-nameserver:
     - 223.5.5.5
@@ -50,15 +42,15 @@ dns:
     - system
 
   proxy-server-nameserver:
-    - https://223.5.5.5/dns-query
-    - https://1.12.12.12/dns-query
+    - https://223.5.5.5/dns-query#DIRECT
+    - https://1.12.12.12/dns-query#DIRECT
 
   nameserver:
     - https://cloudflare-dns.com/dns-query#默认代理
     - https://dns.google/dns-query#默认代理
 
   nameserver-policy:
-    "geosite:cn":
+    "rule-set:cn":
       - 223.5.5.5
       - 119.29.29.29
 
@@ -68,6 +60,9 @@ dns:
     - 119.29.29.29
 
   fake-ip-filter:
+    - "+.lan"
+    - "+.local"
+    - "+.localhost"
     - "+.stun.*.*"
     - "+.stun.*.*.*"
     - "+.stun.*.*.*.*"
@@ -80,1263 +75,480 @@ dns:
     - "*.msftconnecttest.com"
     - "*.mcdn.bilivideo.cn"
 
-    # 原脚本规则
-    - "rule-set:private"
-    - "rule-set:fakeip_filter"
-    - "rule-set:geolocation-cn"
-
-  skip-cert-verify: false
-
-
-# ============================================================
-# Hosts
-# ============================================================
-
 hosts:
-
-  cloudflare-dns.com:
+  "cloudflare-dns.com":
     - 1.1.1.1
     - 1.0.0.1
-
-  dns.google:
+  "dns.google":
     - 8.8.8.8
     - 8.8.4.4
-
-  services.googleapis.cn:
+  "services.googleapis.cn":
     - services.googleapis.com
 
-
-# ============================================================
-# 远程订阅
-# ============================================================
+tun:
+  enable: true
+  stack: system
+  auto-route: true
+  strict-route: true
+  auto-redirect: true
+  auto-detect-interface: true
+  dns-hijack:
+    - any:53
+    - tcp://any:53
 
 proxy-providers:
 
-  subscription:
-    url: "你的订阅连接"
-
+  机场1:
+    url: "YOUR_SECOND_AIRPORT_SUBSCRIPTION_URL"
+    type: http
     interval: 3600
-
-    path: ./providers/subscription.yaml
-
+    path: ./providers/机场1.yaml
     health-check:
       enable: true
       interval: 600
       url: https://www.apple.com/library/test/success.html
 
-
-# ============================================================
-# 代理组
-# ============================================================
+  机场2:
+    url: "YOUR_SECOND_AIRPORT_SUBSCRIPTION_URL"
+    type: http
+    interval: 3600
+    path: ./providers/机场2.yaml
+    health-check:
+      enable: true
+      interval: 600
+      url: https://www.apple.com/library/test/success.html
 
 proxy-groups:
 
-  # ----------------------------------------------------------
-  # 1. 手动选择
-  # ----------------------------------------------------------
-
   - name: 手动选择
     type: select
-
-    proxies:
-      - 自动选择
-      - 负载均衡
-
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-
-      - DIRECT
-
-
-  # ----------------------------------------------------------
-  # 2. 自动选择
-  # ----------------------------------------------------------
+    include-all: true
 
   - name: 自动选择
     type: url-test
-
     include-all: true
-
-    filter: '^(?!.*(?:官网|公告|通知|套餐|剩余|流量|到期|续费|客服|群|频道|订阅|返利|循环|网站|网址|获取|机场|备用|过期|已用|联系|邮箱|工单|国内|电报|超时|优惠|福利|邀请|失联|公益|发布|通路|登录|禁止|定时|渠道|余额|本站|刷新|导航|建议|重置|过滤|⚠️|@|t\.me|\.com|traffic)).*$'
-
+    exclude-type: direct
     url: https://www.apple.com/library/test/success.html
-
     interval: 600
     tolerance: 50
-
     lazy: true
-
-    timeout: 3000
-
-    max-failed-times: 3
-
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
-
-
-  # ----------------------------------------------------------
-  # 3. 负载均衡
-  # ----------------------------------------------------------
 
   - name: 负载均衡
     type: load-balance
-
-    include-all: true
-
-    filter: '^(?!.*(?:官网|公告|通知|套餐|剩余|流量|到期|续费|客服|群|频道|订阅|返利|循环|网站|网址|获取|机场|备用|过期|已用|联系|邮箱|工单|国内|电报|超时|优惠|福利|邀请|失联|公益|发布|通路|登录|禁止|定时|渠道|余额|本站|刷新|导航|建议|重置|过滤|⚠️|@|t\.me|\.com|traffic)).*$'
-
     strategy: consistent-hashing
-
+    include-all: true
+    exclude-type: direct
     url: https://www.apple.com/library/test/success.html
-
     interval: 600
-
     lazy: true
-
-    timeout: 3000
-
-    max-failed-times: 3
-
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Round_Robin.png
-
-
-  # ==========================================================
-  # 服务策略组
-  # ==========================================================
-
-  # ----------------------------------------------------------
-  # FCM
-  # ----------------------------------------------------------
 
   - name: FCM
     type: select
-
     proxies:
       - 默认代理
       - 自动选择
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-      - DIRECT
-
-
-  # ----------------------------------------------------------
-  # YouTube
-  # ----------------------------------------------------------
-
-  - name: YouTube
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-      - DIRECT
-
-
-  # ----------------------------------------------------------
-  # Google
-  # ----------------------------------------------------------
-
-  - name: Google
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-      - DIRECT
-
-
-  # ----------------------------------------------------------
-  # AI
-  # ----------------------------------------------------------
-
-  - name: AI
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 其它节点
-
-
-  # ----------------------------------------------------------
-  # Microsoft
-  # ----------------------------------------------------------
-
-  - name: Microsoft
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-      - DIRECT
-
-
-  # ----------------------------------------------------------
-  # Apple
-  # ----------------------------------------------------------
-
-  - name: Apple
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-      - DIRECT
-
-
-  # ----------------------------------------------------------
-  # Telegram
-  # ----------------------------------------------------------
-
-  - name: Telegram
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-      - DIRECT
-
-
-  # ----------------------------------------------------------
-  # Steam
-  # ----------------------------------------------------------
-
-  - name: Steam
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-      - DIRECT
-
-
-  # ----------------------------------------------------------
-  # TikTok
-  # ----------------------------------------------------------
-
-  - name: TikTok
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 其它节点
-
-
-  # ----------------------------------------------------------
-  # Twitter
-  # ----------------------------------------------------------
-
-  - name: Twitter
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇭🇰 香港
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 🇹🇼 台湾
-      - 其它节点
-
-
-  # ----------------------------------------------------------
-  # Instagram
-  # ----------------------------------------------------------
-
-  - name: Instagram
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-      - DIRECT
-
-
-  # ----------------------------------------------------------
-  # Netflix
-  # ----------------------------------------------------------
-
-  - name: Netflix
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-
-
-  # ----------------------------------------------------------
-  # Emby
-  # ----------------------------------------------------------
-
-  - name: Emby
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-      - DIRECT
-
-
-  # ----------------------------------------------------------
-  # PikPak
-  # ----------------------------------------------------------
-
-  - name: PikPak
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-
-
-  # ----------------------------------------------------------
-  # Spotify
-  # ----------------------------------------------------------
-
-  - name: Spotify
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-      - DIRECT
-
-
-  # ----------------------------------------------------------
-  # Crypto
-  # ----------------------------------------------------------
-
-  - name: Crypto
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-
-
-  # ----------------------------------------------------------
-  # EHentai
-  # ----------------------------------------------------------
-
-  - name: EHentai
-    type: select
-
-    proxies:
-      - 默认代理
-      - 自动选择
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-
-
-  # ----------------------------------------------------------
-  # AdBlock
-  # ----------------------------------------------------------
-
-  - name: AdBlock
-    type: select
-
-    proxies:
-      - REJECT
-      - DIRECT
-
-
-  # ==========================================================
-  # 默认代理
-  # ==========================================================
-
-  - name: 默认代理
-    type: select
-
-    proxies:
-      - 自动选择
-      - 负载均衡
-
-      - 🇭🇰 香港
-      - 🇹🇼 台湾
-      - 🇯🇵 日本
-      - 🇸🇬 新加坡
-      - 🇺🇸 美国
-      - 其它节点
-
       - 手动选择
       - DIRECT
 
+  - name: YouTube
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
 
-  # ==========================================================
-  # 倍率节点
-  # ==========================================================
+  - name: Google
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
 
-  # ----------------------------------------------------------
-  # 低倍率节点
-  # ----------------------------------------------------------
+  - name: AI
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
+
+  - name: Microsoft
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
+      - DIRECT
+
+  - name: Apple
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
+      - DIRECT
+
+  - name: Telegram
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
+
+  - name: Steam
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
+
+  - name: TikTok
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
+
+  - name: Twitter
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
+
+  - name: Instagram
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
+
+  - name: Netflix
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
+
+  - name: Emby
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
+
+  - name: PikPak
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
+
+  - name: Spotify
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
+
+  - name: Crypto
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
+
+  - name: EHentai
+    type: select
+    proxies:
+      - 默认代理
+      - 自动选择
+      - 手动选择
+
+  - name: 默认代理
+    type: select
+    proxies:
+      - 自动选择
+      - 负载均衡
+      - 手动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 低倍率节点
+      - 高倍率节点
+      - 其它节点
 
   - name: 低倍率节点
     type: url-test
-
     include-all: true
-
-    filter: '(?i)^(?=.*(?:0\.[0-9]+x?|免费|低倍|低倍率|download)).*$'
-
+    filter: '(?i)^(?=.*(?:0\.[0-9]+|免费|free|低倍率|低倍)).*$'
+    exclude-type: direct
     url: https://www.apple.com/library/test/success.html
-
     interval: 600
     tolerance: 50
     lazy: true
-    timeout: 3000
-
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Low.png
-
-
-  # ----------------------------------------------------------
-  # 高倍率节点
-  # ----------------------------------------------------------
 
   - name: 高倍率节点
     type: url-test
-
     include-all: true
-
-    filter: '(?i)^(?=.*(?:[2-9](?:\.[0-9]+)?x|[1-9][0-9]+x|高倍|高倍率)).*$'
-
+    filter: '(?i)^(?=.*(?:x2|x3|x4|x5|x6|x7|x8|x9|2倍|3倍|4倍|5倍|高倍率|高倍)).*$'
+    exclude-type: direct
     url: https://www.apple.com/library/test/success.html
-
     interval: 600
     tolerance: 50
     lazy: true
-    timeout: 3000
-
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/High.png
-
-
-  # ==========================================================
-  # 地区节点组
-  #
-  # 注意：
-  # 这里已经没有：
-  #
-  # 香港-自动选择
-  # 台湾-自动选择
-  # 日本-自动选择
-  # 新加坡-自动选择
-  # 美国-自动选择
-  #
-  # 每个地区组本身就是 url-test 自动测速组
-  # ==========================================================
-
-
-  # ----------------------------------------------------------
-  # 🇭🇰 香港
-  # ----------------------------------------------------------
 
   - name: 🇭🇰 香港
     type: url-test
-
     include-all: true
-
     filter: '(?i)^(?=.*(?:🇭🇰|香港|HKG|Hong\s*Kong)).*$'
-
+    exclude-type: direct
     url: https://www.apple.com/library/test/success.html
-
     interval: 600
     tolerance: 50
-
     lazy: true
-    timeout: 3000
-
-    max-failed-times: 3
-
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png
-
-
-  # ----------------------------------------------------------
-  # 🇹🇼 台湾
-  # ----------------------------------------------------------
 
   - name: 🇹🇼 台湾
     type: url-test
-
     include-all: true
-
     filter: '(?i)^(?=.*(?:🇹🇼|台湾|台北|高雄|TWN|Taiwan)).*$'
-
+    exclude-type: direct
     url: https://www.apple.com/library/test/success.html
-
     interval: 600
     tolerance: 50
-
     lazy: true
-    timeout: 3000
-
-    max-failed-times: 3
-
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Taiwan.png
-
-
-  # ----------------------------------------------------------
-  # 🇯🇵 日本
-  # ----------------------------------------------------------
 
   - name: 🇯🇵 日本
     type: url-test
-
     include-all: true
-
     filter: '(?i)^(?=.*(?:🇯🇵|日本|东京|大阪|京都|JPN|Japan)).*$'
-
+    exclude-type: direct
     url: https://www.apple.com/library/test/success.html
-
     interval: 600
     tolerance: 50
-
     lazy: true
-    timeout: 3000
-
-    max-failed-times: 3
-
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png
-
-
-  # ----------------------------------------------------------
-  # 🇸🇬 新加坡
-  # ----------------------------------------------------------
 
   - name: 🇸🇬 新加坡
     type: url-test
-
     include-all: true
-
     filter: '(?i)^(?=.*(?:🇸🇬|新加坡|狮城|SGP|Singapore)).*$'
-
+    exclude-type: direct
     url: https://www.apple.com/library/test/success.html
-
     interval: 600
     tolerance: 50
-
     lazy: true
-    timeout: 3000
-
-    max-failed-times: 3
-
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png
-
-
-  # ----------------------------------------------------------
-  # 🇺🇸 美国
-  # ----------------------------------------------------------
 
   - name: 🇺🇸 美国
     type: url-test
-
     include-all: true
-
     filter: '(?i)^(?=.*(?:🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States)).*$'
-
+    exclude-type: direct
     url: https://www.apple.com/library/test/success.html
-
     interval: 600
     tolerance: 50
-
     lazy: true
-    timeout: 3000
-
-    max-failed-times: 3
-
-    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png
-
-
-  # ----------------------------------------------------------
-  # 其它节点
-  # ----------------------------------------------------------
 
   - name: 其它节点
     type: select
-
     include-all: true
-
-    filter: '(?i)^(?!.*(?:🇭🇰|香港|HKG|Hong\s*Kong|🇹🇼|台湾|台北|高雄|TWN|Taiwan|🇯🇵|日本|东京|大阪|京都|JPN|Japan|🇸🇬|新加坡|狮城|SGP|Singapore|🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States|官网|公告|通知|套餐|剩余|流量|到期|续费|客服|群|频道|订阅|返利|循环|网站|网址|获取|机场|备用|过期|已用|联系|邮箱|工单|国内|电报|超时|优惠|福利|邀请|失联|公益|发布|通路|登录|禁止|定时|渠道|余额|本站|刷新|导航|建议|重置|过滤|⚠️|@|t\.me|\.com|traffic)).*$'
-
-
-# ============================================================
-# Rule Providers
-# ============================================================
+    exclude-type: direct
+    filter: '(?i)^(?!.*(?:🇭🇰|香港|HKG|Hong\s*Kong|🇹🇼|台湾|台北|高雄|TWN|Taiwan|🇯🇵|日本|东京|大阪|京都|JPN|Japan|🇸🇬|新加坡|狮城|SGP|Singapore|🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States|群|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|备用|过期|已用|联系|邮箱|工单|通知|国内|频道|电报|超时|优惠|福利|邀请|失联|公益|发布|DIZTNA|通路|登录|禁止|定时|渠道|余额|本站|刷新|导航|建议|重置|过滤|⚠️|@|t\.me|\.com|traffic)).*$'
 
 rule-providers:
 
-  # ----------------------------------------------------------
-  # 基础
-  # ----------------------------------------------------------
-
   private:
     type: http
-    behavior: domain
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geo/geosite/private.yaml
+    path: ./rules/private.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs
-
-  private_ip:
-    type: http
-    behavior: ipcidr
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/private.mrs
-
-  games_cn:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Game/GameCN/GameCN.mrs
-
-  epicgames:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/EpicGames/EpicGames.mrs
-
-  nvidia_cn:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Nvidia/Nvidia.mrs
-
-  apple_cn:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.mrs
-
-  microsoft_cn:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.mrs
-
-  geolocation-cn:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs
-
-  cn_ip:
-    type: http
-    behavior: ipcidr
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs
-
-  geolocation-!cn:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs
-
-  fakeip_filter:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/fakeip-filter.mrs
-
-  cn_additional:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs
 
   cn:
     type: http
     behavior: domain
-    format: mrs
+    format: yaml
+    url: https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geo/geosite/cn.yaml
+    path: ./rules/cn.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs
 
-
-  # ----------------------------------------------------------
-  # FCM
-  # ----------------------------------------------------------
-
-  googlefcm:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GoogleFCM/GoogleFCM.mrs
-
-
-  # ----------------------------------------------------------
-  # YouTube
-  # ----------------------------------------------------------
-
-  youtube:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/YouTube/YouTube.mrs
-
-
-  # ----------------------------------------------------------
-  # Google
-  # ----------------------------------------------------------
-
-  google:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Google/Google.mrs
-
-  google_ip:
+  cn_ip:
     type: http
     behavior: ipcidr
-    format: mrs
+    format: yaml
+    url: https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geo/geoip/cn.yaml
+    path: ./rules/cn_ip.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Google/Google_IP.mrs
 
-
-  # ----------------------------------------------------------
-  # AI
-  # ----------------------------------------------------------
-
-  ai:
+  YouTube:
     type: http
-    behavior: domain
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/YouTube/YouTube.yaml
+    path: ./rules/YouTube.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AI/AI.mrs
 
-
-  # ----------------------------------------------------------
-  # GitHub
-  # ----------------------------------------------------------
-
-  github:
+  Google:
     type: http
-    behavior: domain
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Google/Google.yaml
+    path: ./rules/Google.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GitHub/GitHub.mrs
 
-
-  # ----------------------------------------------------------
-  # Microsoft
-  # ----------------------------------------------------------
-
-  microsoft:
+  AI:
     type: http
-    behavior: domain
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AI/AI.yaml
+    path: ./rules/AI.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.mrs
 
-
-  # ----------------------------------------------------------
-  # Apple
-  # ----------------------------------------------------------
-
-  apple:
+  Microsoft:
     type: http
-    behavior: domain
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.yaml
+    path: ./rules/Microsoft.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.mrs
 
-
-  # ----------------------------------------------------------
-  # Telegram
-  # ----------------------------------------------------------
-
-  telegram:
+  Apple:
     type: http
-    behavior: domain
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.yaml
+    path: ./rules/Apple.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Telegram/Telegram.mrs
 
-  telegram_ip:
+  Telegram:
     type: http
-    behavior: ipcidr
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Telegram/Telegram_No_Resolve.yaml
+    path: ./rules/Telegram.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Telegram/Telegram_IP.mrs
 
-
-  # ----------------------------------------------------------
-  # Steam
-  # ----------------------------------------------------------
-
-  steam:
+  Steam:
     type: http
-    behavior: domain
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Steam/Steam.yaml
+    path: ./rules/Steam.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Steam/Steam.mrs
 
-  steam_ip:
+  TikTok:
     type: http
-    behavior: ipcidr
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/TikTok/TikTok.yaml
+    path: ./rules/TikTok.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Steam/Steam_IP.mrs
 
-
-  # ----------------------------------------------------------
-  # TikTok
-  # ----------------------------------------------------------
-
-  tiktok:
+  Twitter:
     type: http
-    behavior: domain
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Twitter/Twitter.yaml
+    path: ./rules/Twitter.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/TikTok/TikTok.mrs
 
-  tiktok_ip:
+  Instagram:
     type: http
-    behavior: ipcidr
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Instagram/Instagram.yaml
+    path: ./rules/Instagram.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/TikTok/TikTok_IP.mrs
 
-
-  # ----------------------------------------------------------
-  # Twitter
-  # ----------------------------------------------------------
-
-  twitter:
+  Netflix:
     type: http
-    behavior: domain
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Netflix/Netflix.yaml
+    path: ./rules/Netflix.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Twitter/Twitter.mrs
 
-  twitter_ip:
+  Emby:
     type: http
-    behavior: ipcidr
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Emby/Emby.yaml
+    path: ./rules/Emby.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Twitter/Twitter_IP.mrs
 
-
-  # ----------------------------------------------------------
-  # Instagram
-  # ----------------------------------------------------------
-
-  instagram:
+  PikPak:
     type: http
-    behavior: domain
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/PikPak/PikPak.yaml
+    path: ./rules/PikPak.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Instagram/Instagram.mrs
 
-
-  # ----------------------------------------------------------
-  # Netflix
-  # ----------------------------------------------------------
-
-  netflix:
+  Spotify:
     type: http
-    behavior: domain
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Spotify/Spotify.yaml
+    path: ./rules/Spotify.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Netflix/Netflix.mrs
 
-  netflix_ip:
+  Crypto:
     type: http
-    behavior: ipcidr
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Cryptocurrency/Cryptocurrency.yaml
+    path: ./rules/Cryptocurrency.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Netflix/Netflix_IP.mrs
 
-
-  # ----------------------------------------------------------
-  # Emby
-  # ----------------------------------------------------------
-
-  emby:
+  EHentai:
     type: http
-    behavior: domain
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/EHentai/EHentai.yaml
+    path: ./rules/EHentai.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Emby/Emby.mrs
 
-
-  # ----------------------------------------------------------
-  # PikPak
-  # ----------------------------------------------------------
-
-  pikpak:
+  GoogleFCM:
     type: http
-    behavior: domain
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GoogleFCM/GoogleFCM.yaml
+    path: ./rules/GoogleFCM.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/PikPak/PikPak.mrs
 
-
-  # ----------------------------------------------------------
-  # Spotify
-  # ----------------------------------------------------------
-
-  spotify:
+  AdBlock:
     type: http
-    behavior: domain
-    format: mrs
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AdGuard/AdGuard.yaml
+    path: ./rules/AdGuard.yaml
     interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Spotify/Spotify.mrs
-
-  spotify_ip:
-    type: http
-    behavior: ipcidr
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Spotify/Spotify_IP.mrs
-
-
-  # ----------------------------------------------------------
-  # Cryptocurrency
-  # ----------------------------------------------------------
-
-  cryptocurrency:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Cryptocurrency/Cryptocurrency.mrs
-
-
-  # ----------------------------------------------------------
-  # EHentai
-  # ----------------------------------------------------------
-
-  ehentai:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/EHentai/EHentai.mrs
-
-
-# ============================================================
-# Rules
-# ============================================================
 
 rules:
 
-  # ----------------------------------------------------------
-  # 私有网络
-  # ----------------------------------------------------------
-
   - RULE-SET,private,DIRECT
-  - RULE-SET,private_ip,DIRECT
 
+  - RULE-SET,GoogleFCM,FCM
 
-  # ----------------------------------------------------------
-  # 国内服务
-  # ----------------------------------------------------------
-
-  - RULE-SET,games_cn,DIRECT
-  - RULE-SET,epicgames,DIRECT
-  - RULE-SET,nvidia_cn,DIRECT
-  - RULE-SET,apple_cn,DIRECT
-  - RULE-SET,microsoft_cn,DIRECT
-
-
-  # ----------------------------------------------------------
-  # 自定义直连规则
-  # ----------------------------------------------------------
-
-  - DOMAIN-SUFFIX,fsend.cn,DIRECT
-  - DOMAIN-SUFFIX,international-gfe.download.nvidia.com,DIRECT
-  - DOMAIN-KEYWORD,yusen,DIRECT
-
-
-  # ----------------------------------------------------------
-  # Google FCM
-  # ----------------------------------------------------------
-
-  - RULE-SET,googlefcm,FCM
-
-
-  # ----------------------------------------------------------
-  # YouTube
-  # ----------------------------------------------------------
-
-  - RULE-SET,youtube,YouTube
-
-
-  # ----------------------------------------------------------
-  # Google
-  # ----------------------------------------------------------
-
-  - RULE-SET,google,Google
-  - RULE-SET,google_ip,Google
-
-
-  # ----------------------------------------------------------
-  # AI
-  # ----------------------------------------------------------
-
-  - RULE-SET,ai,AI
-
-
-  # ----------------------------------------------------------
-  # GitHub
-  # ----------------------------------------------------------
-
-  - RULE-SET,github,默认代理
-
-
-  # ----------------------------------------------------------
-  # Microsoft
-  # ----------------------------------------------------------
-
-  - RULE-SET,microsoft,Microsoft
-
-
-  # ----------------------------------------------------------
-  # Apple
-  # ----------------------------------------------------------
-
-  - RULE-SET,apple,Apple
-
-
-  # ----------------------------------------------------------
-  # Telegram
-  # ----------------------------------------------------------
-
-  - RULE-SET,telegram,Telegram
-  - RULE-SET,telegram_ip,Telegram
-
-
-  # ----------------------------------------------------------
-  # Steam
-  # ----------------------------------------------------------
-
-  - RULE-SET,steam,Steam
-  - RULE-SET,steam_ip,Steam
-
-
-  # ----------------------------------------------------------
-  # TikTok
-  # ----------------------------------------------------------
-
-  - RULE-SET,tiktok,TikTok
-  - RULE-SET,tiktok_ip,TikTok
-
-
-  # ----------------------------------------------------------
-  # Twitter
-  # ----------------------------------------------------------
-
-  - RULE-SET,twitter,Twitter
-  - RULE-SET,twitter_ip,Twitter
-
-
-  # ----------------------------------------------------------
-  # Instagram
-  # ----------------------------------------------------------
-
-  - RULE-SET,instagram,Instagram
-
-
-  # ----------------------------------------------------------
-  # Netflix
-  # ----------------------------------------------------------
-
-  - RULE-SET,netflix,Netflix
-  - RULE-SET,netflix_ip,Netflix
-
-
-  # ----------------------------------------------------------
-  # Emby
-  # ----------------------------------------------------------
-
-  - RULE-SET,emby,Emby
-
-
-  # ----------------------------------------------------------
-  # PikPak
-  # ----------------------------------------------------------
-
-  - RULE-SET,pikpak,PikPak
-
-
-  # ----------------------------------------------------------
-  # Spotify
-  # ----------------------------------------------------------
-
-  - RULE-SET,spotify,Spotify
-  - RULE-SET,spotify_ip,Spotify
-
-
-  # ----------------------------------------------------------
-  # Cryptocurrency
-  # ----------------------------------------------------------
-
-  - RULE-SET,cryptocurrency,Crypto
-
-
-  # ----------------------------------------------------------
-  # EHentai
-  # ----------------------------------------------------------
-
-  - RULE-SET,ehentai,EHentai
-
-
-  # ----------------------------------------------------------
-  # 中国大陆
-  # ----------------------------------------------------------
+  - RULE-SET,YouTube,YouTube
+  - RULE-SET,Google,Google
+  - RULE-SET,AI,AI
+  - RULE-SET,Microsoft,Microsoft
+  - RULE-SET,Apple,Apple
+  - RULE-SET,Telegram,Telegram
+  - RULE-SET,Steam,Steam
+  - RULE-SET,TikTok,TikTok
+  - RULE-SET,Twitter,Twitter
+  - RULE-SET,Instagram,Instagram
+  - RULE-SET,Netflix,Netflix
+  - RULE-SET,Emby,Emby
+  - RULE-SET,PikPak,PikPak
+  - RULE-SET,Spotify,Spotify
+  - RULE-SET,Crypto,Crypto
+  - RULE-SET,EHentai,EHentai
 
   - RULE-SET,cn,DIRECT
-  - RULE-SET,cn_additional,DIRECT
   - RULE-SET,cn_ip,DIRECT
 
-  - GEOIP,CN,DIRECT
-
-
-  # ----------------------------------------------------------
-  # 非中国大陆
-  # ----------------------------------------------------------
-
-  - RULE-SET,geolocation-!cn,默认代理
-
-
-  # ----------------------------------------------------------
-  # 最终规则
-  # ----------------------------------------------------------
-
   - MATCH,默认代理
-
-
-# ============================================================
-# TUN
-# ============================================================
-
-tun:
-  enable: true
-
-  stack: system
-
-  auto-route: true
-  auto-detect-interface: true
-
-  strict-route: true
-
-  auto-redirect: true
-
-  dns-hijack:
-    - any:53
-    - tcp://any:53
-
-
-# ============================================================
-# NTP
-# ============================================================
-
-ntp:
-  enable: true
-  server: ntp.aliyun.com
-  port: 123
-  interval: 60
