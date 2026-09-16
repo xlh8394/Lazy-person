@@ -2,16 +2,30 @@
 # Stash PC / Windows 配置
 # 基于 mihomoScript.js (AIsouler / Lazy-person) 逻辑优化
 # 适配 Stash Windows
+#
+# 地区顺序：
+# 🇭🇰 香港
+# 🇹🇼 台湾
+# 🇯🇵 日本
+# 🇸🇬 新加坡
+# 🇺🇸 美国
+# 其它节点
+#
+# 重要：
+# 1. 已移除“国外 UDP/443 REJECT”规则，避免 HY2 被拦截
+# 2. 地区组使用 include-all + filter
+# 3. 负载均衡使用 consistent-hashing
 # ============================================================
 
-mode: rule
-log-level: info
 
 # ============================================================
 # 基础设置
 # ============================================================
 
+mode: rule
+log-level: info
 allow-lan: false
+
 
 # ============================================================
 # DNS
@@ -20,18 +34,19 @@ allow-lan: false
 dns:
   enable: true
 
-  # 默认 DNS：用于解析代理服务器、规则等
+  # 用于解析代理服务器、Provider、规则等
   default-nameserver:
     - 223.5.5.5
     - 119.29.29.29
     - system
 
-  # 默认远程 DNS
+  # 国外 DNS
+  # 通过“默认代理”访问
   nameserver:
-    - https://doh.pub/dns-query
-    - https://dns.alidns.com/dns-query
+    - https://cloudflare-dns.com/dns-query#默认代理
+    - https://dns.google/dns-query#默认代理
 
-  # 中国大陆域名优先使用国内 DNS
+  # 中国大陆域名使用国内 DNS
   nameserver-policy:
     'geosite:cn':
       - 223.5.5.5
@@ -51,8 +66,6 @@ dns:
     - '*.msftconnecttest.com'
     - '*.mcdn.bilivideo.cn'
 
-  # 如果 DoH 在你的 Windows 环境下正常工作，
-  # 建议保持 false；只有出现证书/TLS 问题时再改为 true
   skip-cert-verify: false
 
 
@@ -63,7 +76,7 @@ dns:
 proxy-providers:
 
   subscription:
-    url: "https://your-airport-subscribe-url"
+    url: "你的订阅连接"
     interval: 3600
     path: ./providers/subscription.yaml
 
@@ -448,15 +461,148 @@ rule-providers:
 
 proxy-groups:
 
+  # ==========================================================
+  # 地区节点
+  # ==========================================================
+
   # ----------------------------------------------------------
+  # 🇭🇰 香港
+  # ----------------------------------------------------------
+
+  - name: 🇭🇰 香港
+    type: select
+    include-all: true
+    filter: '^(?=.*(?:🇭🇰|香港|HKG|Hong\s*Kong)).*$'
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png
+
+
+  - name: 🇭🇰 香港-自动选择
+    type: url-test
+    include-all: true
+    filter: '^(?=.*(?:🇭🇰|香港|HKG|Hong\s*Kong)).*$'
+    url: https://www.apple.com/library/test/success.html
+    interval: 600
+    tolerance: 50
+    lazy: true
+    timeout: 3000
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
+
+
+  # ----------------------------------------------------------
+  # 🇹🇼 台湾
+  # ----------------------------------------------------------
+
+  - name: 🇹🇼 台湾
+    type: select
+    include-all: true
+    filter: '^(?=.*(?:🇹🇼|台湾|台北|高雄|TWN|Taiwan)).*$'
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Taiwan.png
+
+
+  - name: 🇹🇼 台湾-自动选择
+    type: url-test
+    include-all: true
+    filter: '^(?=.*(?:🇹🇼|台湾|台北|高雄|TWN|Taiwan)).*$'
+    url: https://www.apple.com/library/test/success.html
+    interval: 600
+    tolerance: 50
+    lazy: true
+    timeout: 3000
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
+
+
+  # ----------------------------------------------------------
+  # 🇯🇵 日本
+  # ----------------------------------------------------------
+
+  - name: 🇯🇵 日本
+    type: select
+    include-all: true
+    filter: '^(?=.*(?:🇯🇵|日本|东京|大阪|京都|JPN|Japan)).*$'
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png
+
+
+  - name: 🇯🇵 日本-自动选择
+    type: url-test
+    include-all: true
+    filter: '^(?=.*(?:🇯🇵|日本|东京|大阪|京都|JPN|Japan)).*$'
+    url: https://www.apple.com/library/test/success.html
+    interval: 600
+    tolerance: 50
+    lazy: true
+    timeout: 3000
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
+
+
+  # ----------------------------------------------------------
+  # 🇸🇬 新加坡
+  # ----------------------------------------------------------
+
+  - name: 🇸🇬 新加坡
+    type: select
+    include-all: true
+    filter: '^(?=.*(?:🇸🇬|新加坡|狮城|SGP|Singapore)).*$'
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png
+
+
+  - name: 🇸🇬 新加坡-自动选择
+    type: url-test
+    include-all: true
+    filter: '^(?=.*(?:🇸🇬|新加坡|狮城|SGP|Singapore)).*$'
+    url: https://www.apple.com/library/test/success.html
+    interval: 600
+    tolerance: 50
+    lazy: true
+    timeout: 3000
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
+
+
+  # ----------------------------------------------------------
+  # 🇺🇸 美国
+  # ----------------------------------------------------------
+
+  - name: 🇺🇸 美国
+    type: select
+    include-all: true
+    filter: '^(?=.*(?:🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States)).*$'
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png
+
+
+  - name: 🇺🇸 美国-自动选择
+    type: url-test
+    include-all: true
+    filter: '^(?=.*(?:🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States)).*$'
+    url: https://www.apple.com/library/test/success.html
+    interval: 600
+    tolerance: 50
+    lazy: true
+    timeout: 3000
+    icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
+
+
+  # ----------------------------------------------------------
+  # 其它节点
+  # ----------------------------------------------------------
+
+  - name: 其它节点
+    type: select
+    include-all: true
+    filter: '^(?!.*(?:🇭🇰|香港|HKG|Hong\s*Kong|🇹🇼|台湾|台北|高雄|TWN|Taiwan|🇯🇵|日本|东京|大阪|京都|JPN|Japan|🇸🇬|新加坡|狮城|SGP|Singapore|🇺🇸|美国|纽约|洛杉矶|旧金山|芝加哥|休斯顿|迈阿密|西雅图|波士顿|华盛顿|拉斯维加斯|圣何塞|圣地亚哥|USA|America|United\s*States)).*$'
+
+
+  # ==========================================================
   # 核心策略
-  # ----------------------------------------------------------
+  # ==========================================================
 
   - name: 手动选择
     type: select
-    use:
-      - subscription
     proxies:
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
       - 自动选择
       - 负载均衡
       - DIRECT
@@ -465,42 +611,41 @@ proxy-groups:
 
   - name: 自动选择
     type: url-test
-    use:
-      - subscription
-
-    # 排除机场中的非节点项目
-    filter: '^(?!.*(官网|公告|通知|套餐|剩余|流量|到期|续费|客服|群|频道|订阅)).*$'
-
+    include-all: true
+    filter: '^(?!.*(?:官网|公告|通知|套餐|剩余|流量|到期|续费|客服|群|频道|订阅)).*$'
     url: https://www.apple.com/library/test/success.html
     interval: 600
     tolerance: 50
     lazy: true
-
+    timeout: 3000
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png
 
 
   - name: 负载均衡
     type: load-balance
-    use:
-      - subscription
-
-    filter: '^(?!.*(官网|公告|通知|套餐|剩余|流量|到期|续费|客服|群|频道|订阅)).*$'
-
+    include-all: true
+    filter: '^(?!.*(?:官网|公告|通知|套餐|剩余|流量|到期|续费|客服|群|频道|订阅)).*$'
     strategy: consistent-hashing
     url: https://www.apple.com/library/test/success.html
     interval: 600
-
+    lazy: true
+    timeout: 3000
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Round_Robin.png
 
 
-  # ----------------------------------------------------------
+  # ==========================================================
   # 服务策略组
-  # ----------------------------------------------------------
+  # ==========================================================
 
   - name: FCM
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/MiToverG422/Qure@master/IconSet/Color/fcm.png
@@ -509,7 +654,12 @@ proxy-groups:
   - name: YouTube
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/YouTube.png
@@ -518,7 +668,12 @@ proxy-groups:
   - name: Google
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Google_Search.png
@@ -527,7 +682,12 @@ proxy-groups:
   - name: AI
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ChatGPT.png
@@ -536,7 +696,12 @@ proxy-groups:
   - name: Microsoft
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Microsoft.png
@@ -545,7 +710,12 @@ proxy-groups:
   - name: Apple
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple.png
@@ -554,7 +724,12 @@ proxy-groups:
   - name: Telegram
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Telegram.png
@@ -563,7 +738,12 @@ proxy-groups:
   - name: Steam
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Steam.png
@@ -572,7 +752,12 @@ proxy-groups:
   - name: TikTok
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/TikTok.png
@@ -581,7 +766,12 @@ proxy-groups:
   - name: Twitter
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Twitter.png
@@ -590,7 +780,12 @@ proxy-groups:
   - name: Instagram
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Instagram.png
@@ -599,7 +794,12 @@ proxy-groups:
   - name: Netflix
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Netflix.png
@@ -608,7 +808,12 @@ proxy-groups:
   - name: Emby
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Emby.png
@@ -617,7 +822,12 @@ proxy-groups:
   - name: PikPak
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/03CNSoft/pikpak.png
@@ -626,7 +836,12 @@ proxy-groups:
   - name: Spotify
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Spotify.png
@@ -635,7 +850,12 @@ proxy-groups:
   - name: Crypto
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/04ProxySoft/Bitcoin.png
@@ -644,22 +864,33 @@ proxy-groups:
   - name: EHentai
     type: select
     proxies:
-      - 手动选择
+      - 默认代理
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 自动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Pornhub.png
 
 
-  # ----------------------------------------------------------
-  # 最终代理
-  # ----------------------------------------------------------
+  # ==========================================================
+  # 默认代理
+  # ==========================================================
 
   - name: 默认代理
     type: select
     proxies:
-      - 手动选择
       - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - 其它节点
       - 负载均衡
+      - 手动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png
 
@@ -694,18 +925,12 @@ rules:
 
 
   # ----------------------------------------------------------
-  # 3. 禁止国外 QUIC
+  # 3. Google / YouTube / AI
   #
-  # UDP + 443
-  # 非中国大陆
-  # → REJECT
-  # ----------------------------------------------------------
-
-  - AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((OR,((RULE-SET,cn_additional),(RULE-SET,cn_ip,no-resolve)))))),REJECT
-
-
-  # ----------------------------------------------------------
-  # 4. Google / YouTube / AI
+  # 注意：
+  # 已删除国外 UDP/443 REJECT
+  #
+  # 原规则会直接拦截大量 HY2 / QUIC 流量。
   # ----------------------------------------------------------
 
   - RULE-SET,googlefcm,FCM
@@ -719,14 +944,14 @@ rules:
 
 
   # ----------------------------------------------------------
-  # 5. GitHub
+  # 4. GitHub
   # ----------------------------------------------------------
 
   - RULE-SET,github,默认代理
 
 
   # ----------------------------------------------------------
-  # 6. Microsoft / Apple
+  # 5. Microsoft / Apple
   # ----------------------------------------------------------
 
   - RULE-SET,microsoft,Microsoft
@@ -734,7 +959,7 @@ rules:
 
 
   # ----------------------------------------------------------
-  # 7. Telegram
+  # 6. Telegram
   # ----------------------------------------------------------
 
   - RULE-SET,telegram,Telegram
@@ -742,7 +967,7 @@ rules:
 
 
   # ----------------------------------------------------------
-  # 8. Steam
+  # 7. Steam
   # ----------------------------------------------------------
 
   - RULE-SET,steam,Steam
@@ -750,7 +975,7 @@ rules:
 
 
   # ----------------------------------------------------------
-  # 9. TikTok
+  # 8. TikTok
   # ----------------------------------------------------------
 
   - RULE-SET,tiktok,TikTok
@@ -758,7 +983,7 @@ rules:
 
 
   # ----------------------------------------------------------
-  # 10. Twitter / X
+  # 9. Twitter / X
   # ----------------------------------------------------------
 
   - RULE-SET,twitter,Twitter
@@ -766,14 +991,14 @@ rules:
 
 
   # ----------------------------------------------------------
-  # 11. Instagram
+  # 10. Instagram
   # ----------------------------------------------------------
 
   - RULE-SET,instagram,Instagram
 
 
   # ----------------------------------------------------------
-  # 12. Netflix
+  # 11. Netflix
   # ----------------------------------------------------------
 
   - RULE-SET,netflix,Netflix
@@ -781,7 +1006,7 @@ rules:
 
 
   # ----------------------------------------------------------
-  # 13. Emby
+  # 12. Emby
   # ----------------------------------------------------------
 
   - RULE-SET,emby,Emby
@@ -792,14 +1017,14 @@ rules:
 
 
   # ----------------------------------------------------------
-  # 14. PikPak
+  # 13. PikPak
   # ----------------------------------------------------------
 
   - RULE-SET,pikpak,PikPak
 
 
   # ----------------------------------------------------------
-  # 15. Spotify
+  # 14. Spotify
   # ----------------------------------------------------------
 
   - RULE-SET,spotify,Spotify
@@ -807,44 +1032,44 @@ rules:
 
 
   # ----------------------------------------------------------
-  # 16. Cryptocurrency
+  # 15. Cryptocurrency
   # ----------------------------------------------------------
 
   - RULE-SET,cryptocurrency,Crypto
 
 
   # ----------------------------------------------------------
-  # 17. EHentai
+  # 16. EHentai
   # ----------------------------------------------------------
 
   - RULE-SET,ehentai,EHentai
 
 
   # ----------------------------------------------------------
-  # 18. 中国大陆
+  # 17. 中国大陆
   # ----------------------------------------------------------
 
   - RULE-SET,cn,DIRECT
-  - RULE-SET,cn_ip,DIRECT,no-resolve
   - RULE-SET,cn_additional,DIRECT
+  - RULE-SET,cn_ip,DIRECT,no-resolve
 
 
   # ----------------------------------------------------------
-  # 19. IP 中国大陆
+  # 18. 中国大陆 IP
   # ----------------------------------------------------------
 
   - GEOIP,CN,DIRECT
 
 
   # ----------------------------------------------------------
-  # 20. 国外
+  # 19. 国外
   # ----------------------------------------------------------
 
   - RULE-SET,geolocation-!cn,默认代理
 
 
   # ----------------------------------------------------------
-  # 21. 最终兜底
+  # 20. 最终兜底
   # ----------------------------------------------------------
 
   - MATCH,默认代理
