@@ -151,8 +151,11 @@ proxy-groups:
   - name: FCM
     type: select
     proxies:
-      - 默认代理
-      - 自动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - 手动选择
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/MiToverG422/Qure@master/IconSet/Color/fcm.png
@@ -163,6 +166,11 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/YouTube.png
 
   - name: Google
@@ -171,6 +179,11 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Google_Search.png
 
   - name: AI
@@ -179,9 +192,11 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
-      - 🇺🇸 美国
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
       - 🇯🇵 日本
       - 🇸🇬 新加坡
+      - 🇺🇸 美国
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ChatGPT.png
 
   - name: Microsoft
@@ -190,6 +205,11 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
       - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Microsoft.png
 
@@ -208,22 +228,31 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Telegram.png
 
   - name: Steam
     type: select
     proxies:
-      - 默认代理
-      - 自动选择
-      - 手动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Steam.png
 
   - name: TikTok
     type: select
     proxies:
-      - 默认代理
-      - 自动选择
-      - 手动选择
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/TikTok.png
 
   - name: Twitter
@@ -232,6 +261,11 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Twitter.png
 
   - name: Instagram
@@ -240,6 +274,11 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Instagram.png
 
   - name: Netflix
@@ -248,14 +287,22 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Netflix.png
 
   - name: Emby
     type: select
     proxies:
-      - 默认代理
-      - 自动选择
-      - 手动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
+      - DIRECT
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Emby.png
 
   - name: PikPak
@@ -264,6 +311,11 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
     icon: https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/03CNSoft/pikpak.png
 
   - name: Spotify
@@ -272,6 +324,11 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Spotify.png
 
   - name: Crypto
@@ -280,6 +337,11 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
     icon: https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/04ProxySoft/Bitcoin.png
 
   - name: EHentai
@@ -288,6 +350,11 @@ proxy-groups:
       - 默认代理
       - 自动选择
       - 手动选择
+      - 🇭🇰 香港
+      - 🇹🇼 台湾
+      - 🇯🇵 日本
+      - 🇸🇬 新加坡
+      - 🇺🇸 美国
     icon: https://fastly.jsdelivr.net/gh/lige47/QuanX-icon-rule@main/icon/04ProxySoft/exhentai.png
 
   - name: 默认代理
