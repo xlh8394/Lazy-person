@@ -9,7 +9,7 @@
       "external_ui": "zashboard",
       "secret": "singbox",
       "external_ui_download_url": "https://gh-proxy.com/https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip",
-      "external_ui_download_detour": "Direct",
+      "external_ui_download_detour": "🎯 Direct",
       "default_mode": "Rule"
     },
     "cache_file": {
@@ -37,7 +37,12 @@
     {
       "tag": "default",
       "version": 2,
-      "detour": "Proxy"
+      "detour": "🚀 Proxy"
+    },
+    {
+      "tag": "rule-download",
+      "version": 2,
+      "domain_resolver": "hosts_fix"
     }
   ],
   "dns": {
@@ -46,24 +51,42 @@
         "tag": "hosts_fix",
         "type": "hosts",
         "predefined": {
-          "dns.alidns.com": ["223.5.5.5", "223.6.6.6"],
-          "doh.pub": ["1.12.12.21", "120.53.53.53"],
-          "dns.google": ["8.8.8.8", "8.8.4.4"],
-          "cloudflare-dns.com": ["104.16.248.249", "104.16.249.249"]
+          "dns.alidns.com": [
+            "223.5.5.5",
+            "223.6.6.6"
+          ],
+          "doh.pub": [
+            "1.12.12.21",
+            "120.53.53.53"
+          ],
+          "dns.google": [
+            "8.8.8.8",
+            "8.8.4.4"
+          ],
+          "cloudflare-dns.com": [
+            "104.16.248.249",
+            "104.16.249.249"
+          ],
+          "gh-proxy.com": [
+            "104.18.33.196",
+            "104.18.40.152",
+            "172.64.145.93",
+            "172.64.145.202"
+          ]
         }
       },
       {
         "tag": "cf-doh",
         "type": "https",
         "server": "cloudflare-dns.com",
-        "detour": "Proxy",
+        "detour": "🚀 Proxy",
         "domain_resolver": "hosts_fix"
       },
       {
         "tag": "gg-doh",
         "type": "https",
         "server": "dns.google",
-        "detour": "Proxy",
+        "detour": "🚀 Proxy",
         "domain_resolver": "hosts_fix"
       },
       {
@@ -97,12 +120,17 @@
       {
         "tag": "local",
         "type": "local",
-        "neighbor_domain": [".local", ".lan"]
+        "neighbor_domain": [
+          ".local",
+          ".lan"
+        ]
       }
     ],
     "rules": [
       {
-        "rule_set": ["Reject"],
+        "rule_set": [
+          "Reject"
+        ],
         "action": "predefined"
       },
       {
@@ -116,7 +144,9 @@
         "server": "remote"
       },
       {
-        "rule_set": ["AppleCN"],
+        "rule_set": [
+          "AppleCN"
+        ],
         "action": "route",
         "server": "ali-doh"
       },
@@ -129,45 +159,70 @@
             "invert": true
           },
           {
-            "rule_set": ["Reject", "Ads_AWAvenue"]
+            "rule_set": [
+              "Reject",
+              "Ads_AWAvenue"
+            ]
           }
         ],
         "action": "reject"
       },
       {
-        "rule_set": ["ChinaDomain"],
-        "query_type": ["A", "AAAA"],
+        "rule_set": [
+          "ChinaDomain"
+        ],
+        "query_type": [
+          "A",
+          "AAAA"
+        ],
         "action": "evaluate",
         "server": "ali-udp",
         "tag": "ali-response",
         "timeout": "3s"
       },
       {
-        "rule_set": ["ChinaDomain"],
-        "query_type": ["A", "AAAA"],
+        "rule_set": [
+          "ChinaDomain"
+        ],
+        "query_type": [
+          "A",
+          "AAAA"
+        ],
         "action": "evaluate",
         "server": "tx-udp",
         "tag": "tx-response",
         "timeout": "3s"
       },
       {
-        "rule_set": ["ChinaDomain"],
-        "query_type": ["A", "AAAA"],
+        "rule_set": [
+          "ChinaDomain"
+        ],
+        "query_type": [
+          "A",
+          "AAAA"
+        ],
         "match_response": "ali-response",
         "ip_accept_any": true,
         "action": "respond",
         "race": true
       },
       {
-        "rule_set": ["ChinaDomain"],
-        "query_type": ["A", "AAAA"],
+        "rule_set": [
+          "ChinaDomain"
+        ],
+        "query_type": [
+          "A",
+          "AAAA"
+        ],
         "match_response": "tx-response",
         "ip_accept_any": true,
         "action": "respond",
         "race": true
       },
       {
-        "rule_set": ["ChinaDomain"],
+        "rule_set": [
+          "ChinaDomain"
+        ],
         "action": "route",
         "server": "ali-udp",
         "timeout": "3s"
@@ -192,7 +247,10 @@
         "server": "local"
       },
       {
-        "query_type": ["A", "AAAA"],
+        "query_type": [
+          "A",
+          "AAAA"
+        ],
         "action": "route",
         "server": "remote",
         "rewrite_ttl": 1
@@ -230,215 +288,215 @@
   ],
   "outbounds": [
     {
-      "tag": "Direct",
+      "tag": "🎯 Direct",
       "type": "direct"
     },
     {
-      "tag": "Proxy",
+      "tag": "🚀 Proxy",
       "type": "selector",
       "outbounds": [
-        "HongKong",
-        "Taiwan",
-        "Japan",
-        "Singapore",
-        "United States",
-        "Auto",
-        "Others",
-        "Direct"
+        "🇭🇰 HongKong",
+        "🇹🇼 Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇺🇸 United States",
+        "⚡ Auto",
+        "🌐 Others",
+        "🎯 Direct"
       ],
-      "default": "Direct",
+      "default": "🎯 Direct",
       "interrupt_exist_connections": true
     },
     {
-      "tag": "AI",
+      "tag": "🤖 AI",
       "type": "selector",
       "outbounds": [
-        "Proxy",
-        "HongKong",
-        "Taiwan",
-        "Japan",
-        "Singapore",
-        "United States"
+        "🚀 Proxy",
+        "🇭🇰 HongKong",
+        "🇹🇼 Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇺🇸 United States"
       ],
-      "default": "United States",
+      "default": "🇺🇸 United States",
       "interrupt_exist_connections": true
     },
     {
-      "tag": "Google",
+      "tag": "🔍 Google",
       "type": "selector",
       "outbounds": [
-        "Proxy",
-        "HongKong",
-        "Taiwan",
-        "Japan",
-        "Singapore",
-        "United States"
+        "🚀 Proxy",
+        "🇭🇰 HongKong",
+        "🇹🇼 Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇺🇸 United States"
       ],
-      "default": "United States",
+      "default": "🇺🇸 United States",
       "interrupt_exist_connections": true
     },
     {
-      "tag": "Microsoft",
+      "tag": "🪟 Microsoft",
       "type": "selector",
       "outbounds": [
-        "Proxy",
-        "HongKong",
-        "Taiwan",
-        "Japan",
-        "Singapore",
-        "United States",
-        "Direct"
+        "🚀 Proxy",
+        "🇭🇰 HongKong",
+        "🇹🇼 Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇺🇸 United States",
+        "🎯 Direct"
       ],
-      "default": "Direct",
+      "default": "🎯 Direct",
       "interrupt_exist_connections": true
     },
     {
-      "tag": "Social",
+      "tag": "📱 Social",
       "type": "selector",
       "outbounds": [
-        "Proxy",
-        "HongKong",
-        "Taiwan",
-        "Japan",
-        "Singapore",
-        "United States"
+        "🚀 Proxy",
+        "🇭🇰 HongKong",
+        "🇹🇼 Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇺🇸 United States"
       ],
-      "default": "HongKong",
+      "default": "🇭🇰 HongKong",
       "interrupt_exist_connections": true
     },
     {
-      "tag": "TikTok",
+      "tag": "🎵 TikTok",
       "type": "selector",
       "outbounds": [
-        "Proxy",
-        "Taiwan",
-        "Japan",
-        "Singapore",
-        "United States"
+        "🚀 Proxy",
+        "🇹🇼 Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇺🇸 United States"
       ],
-      "default": "United States",
+      "default": "🇺🇸 United States",
       "interrupt_exist_connections": true
     },
     {
-      "tag": "Telegram",
+      "tag": "✈️ Telegram",
       "type": "selector",
       "outbounds": [
-        "Proxy",
-        "HongKong",
-        "Taiwan",
-        "Japan",
-        "Singapore",
-        "United States"
+        "🚀 Proxy",
+        "🇭🇰 HongKong",
+        "🇹🇼 Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇺🇸 United States"
       ],
-      "default": "HongKong",
+      "default": "🇭🇰 HongKong",
       "interrupt_exist_connections": true
     },
     {
-      "tag": "Game",
+      "tag": "🎮 Game",
       "type": "selector",
       "outbounds": [
-        "Proxy",
-        "HongKong",
-        "Taiwan",
-        "Japan",
-        "Singapore",
-        "United States",
-        "Direct"
-      ],
-      "interrupt_exist_connections": true
-    },
-    {
-      "tag": "Emby",
-      "type": "selector",
-      "outbounds": [
-        "Proxy",
-        "HongKong",
-        "Taiwan",
-        "Japan",
-        "Singapore",
-        "United States",
-        "Direct"
-      ],
-      "default": "HongKong",
-      "interrupt_exist_connections": true
-    },
-    {
-      "tag": "Spotify",
-      "type": "selector",
-      "outbounds": [
-        "Proxy",
-        "HongKong",
-        "Taiwan",
-        "Japan",
-        "Singapore",
-        "United States",
-        "Direct"
-      ],
-      "default": "United States",
-      "interrupt_exist_connections": true
-    },
-    {
-      "tag": "Streaming",
-      "type": "selector",
-      "outbounds": [
-        "Proxy",
-        "HongKong",
-        "Taiwan",
-        "Japan",
-        "Singapore",
-        "United States"
+        "🚀 Proxy",
+        "🇭🇰 HongKong",
+        "🇹🇼 Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇺🇸 United States",
+        "🎯 Direct"
       ],
       "interrupt_exist_connections": true
     },
     {
-      "tag": "BiliBili",
+      "tag": "📺 Emby",
       "type": "selector",
       "outbounds": [
-        "HongKong",
-        "Taiwan",
-        "Direct"
+        "🚀 Proxy",
+        "🇭🇰 HongKong",
+        "🇹🇼 Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇺🇸 United States",
+        "🎯 Direct"
       ],
-      "default": "Direct",
+      "default": "🇭🇰 HongKong",
       "interrupt_exist_connections": true
     },
     {
-      "tag": "HongKong",
+      "tag": "🎧 Spotify",
+      "type": "selector",
+      "outbounds": [
+        "🚀 Proxy",
+        "🇭🇰 HongKong",
+        "🇹🇼 Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇺🇸 United States",
+        "🎯 Direct"
+      ],
+      "default": "🇺🇸 United States",
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "🎬 Streaming",
+      "type": "selector",
+      "outbounds": [
+        "🚀 Proxy",
+        "🇭🇰 HongKong",
+        "🇹🇼 Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇺🇸 United States"
+      ],
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "📺 BiliBili",
+      "type": "selector",
+      "outbounds": [
+        "🇭🇰 HongKong",
+        "🇹🇼 Taiwan",
+        "🎯 Direct"
+      ],
+      "default": "🎯 Direct",
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "🇭🇰 HongKong",
       "type": "selector",
       "outbounds": [],
       "interrupt_exist_connections": true
     },
     {
-      "tag": "Taiwan",
+      "tag": "🇹🇼 Taiwan",
       "type": "selector",
       "outbounds": [],
       "interrupt_exist_connections": true
     },
     {
-      "tag": "Japan",
+      "tag": "🇯🇵 Japan",
       "type": "selector",
       "outbounds": [],
       "interrupt_exist_connections": true
     },
     {
-      "tag": "Singapore",
+      "tag": "🇸🇬 Singapore",
       "type": "selector",
       "outbounds": [],
       "interrupt_exist_connections": true
     },
     {
-      "tag": "United States",
+      "tag": "🇺🇸 United States",
       "type": "selector",
       "outbounds": [],
       "interrupt_exist_connections": true
     },
     {
-      "tag": "Others",
+      "tag": "🌐 Others",
       "type": "selector",
       "outbounds": [],
       "interrupt_exist_connections": true
     },
     {
-      "tag": "Auto",
+      "tag": "⚡ Auto",
       "type": "urltest",
       "outbounds": [],
       "url": "http://cp.cloudflare.com/generate_204",
@@ -451,7 +509,7 @@
     "default_http_client": "default",
     "auto_detect_interface": true,
     "find_process": true,
-    "final": "Proxy",
+    "final": "🚀 Proxy",
     "rules": [
       {
         "action": "sniff"
@@ -472,12 +530,14 @@
       {
         "clash_mode": "Direct",
         "action": "route",
-        "outbound": "Direct"
+        "outbound": "🎯 Direct"
       },
       {
-        "rule_set": ["AppleCN"],
+        "rule_set": [
+          "AppleCN"
+        ],
         "action": "route",
-        "outbound": "Direct"
+        "outbound": "🎯 Direct"
       },
       {
         "type": "logical",
@@ -488,7 +548,10 @@
             "invert": true
           },
           {
-            "rule_set": ["Reject", "Ads_AWAvenue"]
+            "rule_set": [
+              "Reject",
+              "Ads_AWAvenue"
+            ]
           }
         ],
         "action": "reject"
@@ -501,57 +564,81 @@
           "fbsbx.com"
         ],
         "action": "route",
-        "outbound": "Social"
+        "outbound": "📱 Social"
       },
       {
-        "rule_set": ["AI"],
+        "rule_set": [
+          "AI"
+        ],
         "action": "route",
-        "outbound": "AI"
+        "outbound": "🤖 AI"
       },
       {
-        "rule_set": ["Telegram"],
+        "rule_set": [
+          "Telegram"
+        ],
         "action": "route",
-        "outbound": "Telegram"
+        "outbound": "✈️ Telegram"
       },
       {
-        "rule_set": ["Twitter", "Facebook"],
+        "rule_set": [
+          "Twitter",
+          "Facebook"
+        ],
         "action": "route",
-        "outbound": "Social"
+        "outbound": "📱 Social"
       },
       {
-        "rule_set": ["TikTok"],
+        "rule_set": [
+          "TikTok"
+        ],
         "action": "route",
-        "outbound": "TikTok"
+        "outbound": "🎵 TikTok"
       },
       {
-        "rule_set": ["Steam", "Epic"],
+        "rule_set": [
+          "Steam",
+          "Epic"
+        ],
         "action": "route",
-        "outbound": "Game"
+        "outbound": "🎮 Game"
       },
       {
-        "rule_set": ["Google", "YouTube", "Github"],
+        "rule_set": [
+          "Google",
+          "YouTube",
+          "Github"
+        ],
         "action": "route",
-        "outbound": "Google"
+        "outbound": "🔍 Google"
       },
       {
-        "rule_set": ["Microsoft"],
+        "rule_set": [
+          "Microsoft"
+        ],
         "action": "route",
-        "outbound": "Microsoft"
+        "outbound": "🪟 Microsoft"
       },
       {
-        "rule_set": ["Emby"],
+        "rule_set": [
+          "Emby"
+        ],
         "action": "route",
-        "outbound": "Emby"
+        "outbound": "📺 Emby"
       },
       {
-        "rule_set": ["Spotify"],
+        "rule_set": [
+          "Spotify"
+        ],
         "action": "route",
-        "outbound": "Spotify"
+        "outbound": "🎧 Spotify"
       },
       {
-        "rule_set": ["Bilibili"],
+        "rule_set": [
+          "Bilibili"
+        ],
         "action": "route",
-        "outbound": "BiliBili"
+        "outbound": "📺 BiliBili"
       },
       {
         "rule_set": [
@@ -562,35 +649,43 @@
           "HBO"
         ],
         "action": "route",
-        "outbound": "Streaming"
+        "outbound": "🎬 Streaming"
       },
       {
-        "rule_set": ["ChinaDomain"],
+        "rule_set": [
+          "ChinaDomain"
+        ],
         "action": "route",
-        "outbound": "Direct"
+        "outbound": "🎯 Direct"
       },
       {
-        "rule_set": ["Proxy"],
+        "rule_set": [
+          "Proxy"
+        ],
         "action": "route",
-        "outbound": "Proxy"
+        "outbound": "🚀 Proxy"
       },
       {
-        "rule_set": ["AppleProxy"],
+        "rule_set": [
+          "AppleProxy"
+        ],
         "action": "route",
-        "outbound": "Proxy"
+        "outbound": "🚀 Proxy"
       },
       {
         "action": "resolve"
       },
       {
-        "rule_set": ["ChinaIP"],
+        "rule_set": [
+          "ChinaIP"
+        ],
         "action": "route",
-        "outbound": "Direct"
+        "outbound": "🎯 Direct"
       },
       {
         "ip_is_private": true,
         "action": "route",
-        "outbound": "Direct"
+        "outbound": "🎯 Direct"
       }
     ],
     "rule_set": [
@@ -626,7 +721,8 @@
         ],
         "format": "binary",
         "url": "https://gh-proxy.com/https://raw.githubusercontent.com/Repcz/Tool/X/sing-box/Rules/{tag}.srs",
-        "update_interval": "24h"
+        "update_interval": "24h",
+        "http_client": "rule-download"
       }
     ]
   }
