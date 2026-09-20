@@ -3,6 +3,12 @@
  * 原作者：AIsouler
  * 源仓库：https://github.com/AIsouler/MyClash
  * 参考：https://clash.md/zh/guide/config/best-practice
+ * 优化说明：
+ * 1. log-level 改为 warning（官方日常推荐）
+ * 2. 策略组启用 lazy: true（按需健康检查）
+ * 3. 不写入 mixed-port / allow-lan / external-controller（Hako 自行管理）
+ * 4. 保持 Fake-IP + 中国直连优先原则
+ * 5. 规则顺序更贴近官方模板
  */
 const Compatible_With_Bettbox = { ruleOptionsEnable: true };
 
@@ -218,7 +224,7 @@ const groupBaseOption = {
   interval: 300,
   timeout: 5000,
   url: 'https://www.gstatic.com/generate_204',
-  lazy: false,
+  lazy: true,                    // 官方推荐：按需触发健康检查
   'max-failed-times': 3,
   'empty-fallback': 'REJECT',
 };
@@ -510,6 +516,7 @@ const serviceConfigs = [
       'DOMAIN-SUFFIX,mb3admin.com,Emby',
       'DOMAIN-SUFFIX,nubebelle.com,Emby',
       'DOMAIN-KEYWORD,emby,Emby',
+      // 以下 PROCESS-NAME 仅在 macOS 生效，iOS/tvOS 会自动忽略
       'PROCESS-NAME,com.mb.android,Emby',
       'PROCESS-NAME,tv.emby.embyatv,Emby',
       'PROCESS-NAME,com.hush.yamby,Emby',
@@ -705,7 +712,7 @@ function createRegionGroup(name, icon, proxies) {
         icon,
         proxies,
         hidden: hideManualSelectGroupEnabled,
-        lazy: false,
+        lazy: true,
       },
     ];
   }
@@ -1076,6 +1083,7 @@ function buildDnsAndHostsConfig(config, filteredProxies) {
     return matchDomainPattern(p, proxyDomains);
   });
 
+  // 对齐官方 Fake-IP 推荐，同时保留机场私有 DNS 兼容逻辑
   const dns = {
     enable: true,
     ipv6: true,
@@ -1085,7 +1093,12 @@ function buildDnsAndHostsConfig(config, filteredProxies) {
     'enhanced-mode': 'fake-ip',
     'fake-ip-range': '198.18.0.1/16',
     'fake-ip-range6': '2001:2::1/48',
-    'fake-ip-filter': ['rule-set:private', 'rule-set:fakeip_filter', 'rule-set:geolocation-cn', ...proxyFakeIpFilter],
+    'fake-ip-filter': [
+      'rule-set:private',
+      'rule-set:fakeip_filter',
+      'rule-set:geolocation-cn',
+      ...proxyFakeIpFilter,
+    ],
     'proxy-server-nameserver': chinaDohDNS,
     ...(Object.keys(proxyServerPolicy).length > 0 && {
       'proxy-server-nameserver-policy': proxyServerPolicy,
@@ -1121,11 +1134,12 @@ function main(config) {
     buildFunctionalGroups(filteredProxies, generatedRegionGroups, { customProxyNames, customGroup });
   const { dns, hosts, proxies: mappedProxies } = buildDnsAndHostsConfig(config, filteredProxies);
 
+  // 常规设置（对齐官方最小模板）
   newConfig['dns'] = dns;
   newConfig['hosts'] = hosts;
   newConfig['ipv6'] = true;
   newConfig['mode'] = 'rule';
-  newConfig['log-level'] = 'info';
+  newConfig['log-level'] = 'warning';          // 官方日常推荐
   newConfig['unified-delay'] = true;
   newConfig['tcp-concurrent'] = true;
   newConfig['keep-alive-interval'] = 60;
@@ -1140,6 +1154,10 @@ function main(config) {
     port: 123,
     interval: 60,
   };
+
+  // 不写入 mixed-port / allow-lan / external-controller / tun
+  // 这些由 Hako 在 Apple Packet Tunnel 中自行管理
+
   newConfig['proxies'] = [...customProxies, ...mappedProxies];
   newConfig['proxy-groups'] = [
     globalGroup,
@@ -1148,6 +1166,8 @@ function main(config) {
     ...generatedRegionGroups,
   ];
   newConfig['rule-providers'] = finalRuleProviders;
+
+  // 规则顺序：前缀直连 → 广告 → 服务分流 → 中国直连 → 兜底
   newConfig['rules'] = [
     ...prefixRules,
     ...(ruleOptionsEnable.屏蔽国外QUIC ? blockForeignQuic : []),
