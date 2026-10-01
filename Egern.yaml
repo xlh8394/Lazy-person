@@ -1,38 +1,33 @@
 # ============================================================
 # 配置名称: Egern 配置 (AI整理优化版 v2)
-# 配置作者:所有资料来自网络，本次由 Claude 优化
-# 更新时间: 26-08-19 00:00
-# 本次改动说明（相对上一版）：
-#   1. DNS：新增"境外/代理域名 -> Foreign-Encrypted-DNS"转发规则，
-#      避免走代理的域名也用国内 DNS 解析，防止解析结果与实际代理路径不匹配
-#   2. 简化 GeoIP 兜底逻辑，去掉冗余的 not 规则，直接落到 default(Final)
-#   3. AdBlock / AI 规则集更新频率从 24h 缩短到 12h，减少滞后
-#   4. mitm 密码保留默认值，但强烈建议自行在 Egern App 内重新生成证书和密码（见文末说明）
+# 配置作者: 所有资料来自网络，本次由 Claude 优化
+# 更新时间: 26-10-1
+
 # ============================================================
 
 # ---------------- 基础网络设置 ----------------
-http_port: 6152
-socks_port: 6153
-vif_only: true
-hijack_dns:
+http_port: 6152                          # HTTP 代理端口
+socks_port: 6153                         # SOCKS5 代理端口
+vif_only: true                           # 仅使用虚拟网卡模式
+hijack_dns:                              # 劫持所有 DNS 请求
 - '*:53'
 geoip_db_url: https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country-without-asn.mmdb
 asn_db_url: https://raw.githubusercontent.com/Loyalsoldier/geoip/release/GeoLite2-ASN.mmdb
-proxy_latency_test_url: http://1.1.1.1/generate_204
-direct_latency_test_url: http://wifi.vivo.com.cn/generate_204
+proxy_latency_test_url: http://1.1.1.1/generate_204          # 代理延迟测试地址
+direct_latency_test_url: http://wifi.vivo.com.cn/generate_204 # 直连延迟测试地址
 
 # ---------------- DNS 设置 ----------------
 dns:
   bootstrap:
-  - system
+  - system                               # 启动时使用系统 DNS
   upstreams:
-    Domestic-DNS:
+    Domestic-DNS:                        # 国内明文 DNS
     - 223.5.5.5
     - 119.29.29.29
-    Domestic-Encrypted-DNS:
+    Domestic-Encrypted-DNS:              # 国内加密 DoH
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
-    Foreign-Encrypted-DNS:
+    Foreign-Encrypted-DNS:               # 境外加密 DoH
     - https://cloudflare-dns.com/dns-query
     - https://dns.google/dns-query
   forward:
@@ -46,18 +41,18 @@ dns:
       match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/China/China_Domain.list
       value: Domestic-DNS
       disabled: false
-  # 3. 【新增】需要代理访问的境外域名，走境外加密 DNS，避免用国内 DNS 解析导致
-  #    结果与实际代理线路不一致（例如解析到国内 CDN 节点、或被污染）
+  # 3. 需要代理访问的境外域名，走境外加密 DNS
+  #    （避免用国内 DNS 解析导致结果与实际代理线路不一致）
   - proxy_rule_set:
       match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/Global/Global_Domain.list
       value: Foreign-Encrypted-DNS
       disabled: false
-  # 4. 其余全部走国内加密 DNS（兜底，覆盖未被上面规则集收录的新域名）
+  # 4. 其余全部走国内加密 DNS（兜底）
   - domain_wildcard:
       match: '*'
       value: Domestic-Encrypted-DNS
       disabled: false
-  hosts:
+  hosts:                                 # 强制指定部分 DoH 服务器的 IP
     dns.google:
     - 8.8.8.8
     - 8.8.4.4
@@ -79,7 +74,7 @@ dns:
     dot.pub:
     - 1.12.12.12
     - 120.53.53.53
-  proxy_nameservers:
+  proxy_nameservers:                     # 代理场景下的备用 DNS
   - 119.29.29.29
   - 223.5.5.5
 
@@ -109,7 +104,7 @@ policy_groups:
 
 # ---- 订阅节点入口 ----
 - external:
-    name: Manual  # 订阅节点选择组，手动指定使用哪个节点
+    name: Manual                         # 订阅节点选择组（手动指定节点）
     type: select
     urls:
     - Your subscription
@@ -120,7 +115,7 @@ policy_groups:
 
 # ---- 分类策略组 ----
 - select:
-    name: Apple  # Apple 官方服务（App Store、iCloud 等）
+    name: Apple                          # Apple 官方服务（App Store、iCloud 等）
     policies:
     - DIRECT
     - REJECT
@@ -136,7 +131,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple_2.png
     hidden: false
 - select:
-    name: AI  # AI 服务（ChatGPT、Claude、Gemini 等）
+    name: AI                             # AI 服务（ChatGPT、Claude、Gemini 等）
     policies:
     - Manual
     - Auto
@@ -152,7 +147,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ChatGPT.png
     hidden: false
 - select:
-    name: BiliBili  # 哔哩哔哩
+    name: BiliBili                       # 哔哩哔哩
     policies:
     - DIRECT
     - Manual
@@ -168,7 +163,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/bilibili_3.png
     hidden: false
 - select:
-    name: ChinaMedia  # 国内流媒体（爱奇艺、腾讯视频等）
+    name: ChinaMedia                     # 国内流媒体（爱奇艺、腾讯视频等）
     policies:
     - DIRECT
     - REJECT
@@ -184,7 +179,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/DomesticMedia.png
     hidden: false
 - select:
-    name: GlobalMedia  # 国外流媒体（Netflix、Disney+ 等）
+    name: GlobalMedia                    # 国外流媒体（Netflix、Disney+ 等）
     policies:
     - Manual
     - Auto
@@ -200,7 +195,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ForeignMedia.png
     hidden: false
 - select:
-    name: Spotify  # Spotify 音乐服务
+    name: Spotify                        # Spotify 音乐服务
     policies:
     - Manual
     - Auto
@@ -216,7 +211,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Spotify.png
     hidden: false
 - select:
-    name: TikTok  # 国际版抖音
+    name: TikTok                         # 国际版抖音
     policies:
     - Manual
     - Auto
@@ -232,7 +227,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/TikTok_1.png
     hidden: false
 - select:
-    name: Emby  # 私人 Emby 媒体服务器
+    name: Emby                           # 私人 Emby 媒体服务器
     policies:
     - DIRECT
     - Manual
@@ -248,7 +243,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Emby.png
     hidden: false
 - select:
-    name: GlobalSites  # 其余国外网站（未被单独分类的服务）
+    name: GlobalSites                    # 其余国外网站（未被单独分类的服务）
     policies:
     - Manual
     - Auto
@@ -264,7 +259,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png
     hidden: false
 - select:
-    name: Final  # 兜底策略组，未命中任何规则的流量走这里
+    name: Final                          # 兜底策略组（未命中任何规则的流量）
     policies:
     - Manual
     - Auto
@@ -282,7 +277,7 @@ policy_groups:
 
 # ---- 自动测速 ----
 - auto_test:
-    name: Auto  # 自动测速，从订阅节点中选延迟最低的
+    name: Auto                           # 自动测速，从订阅节点中选延迟最低的
     policies:
     - Manual
     flatten: true
@@ -295,7 +290,7 @@ policy_groups:
 
 # ---- 按地区筛选的智能节点组（隐藏，供上方策略组调用）----
 - smart:
-    name: HongKong  # 自动筛选香港节点
+    name: HongKong                       # 自动筛选香港节点
     policies:
     - Manual
     flatten: true
@@ -303,7 +298,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/HK.png
     hidden: true
 - smart:
-    name: Taiwan  # 自动筛选台湾节点
+    name: Taiwan                         # 自动筛选台湾节点
     policies:
     - Manual
     flatten: true
@@ -311,7 +306,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/TW.png
     hidden: true
 - smart:
-    name: Japan  # 自动筛选日本节点
+    name: Japan                          # 自动筛选日本节点
     policies:
     - Manual
     flatten: true
@@ -319,7 +314,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/JP.png
     hidden: true
 - smart:
-    name: Korea  # 自动筛选韩国节点
+    name: Korea                          # 自动筛选韩国节点
     policies:
     - Manual
     flatten: true
@@ -327,7 +322,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/KR.png
     hidden: true
 - smart:
-    name: Singapore  # 自动筛选新加坡节点
+    name: Singapore                      # 自动筛选新加坡节点
     policies:
     - Manual
     flatten: true
@@ -335,7 +330,7 @@ policy_groups:
     icon: https://fastly.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/SG.png
     hidden: true
 - smart:
-    name: UnitedStates  # 自动筛选美国节点
+    name: UnitedStates                   # 自动筛选美国节点
     policies:
     - Manual
     flatten: true
@@ -349,27 +344,27 @@ policy_groups:
 rules:
 # 1. 规则修正：确保部分域名不被误拦截，优先直连
 - rule_set:
-    name: 规则修正  # 修正部分域名的误判/误拦截，强制直连
+    name: 规则修正
     match: https://raw.githubusercontent.com/Centralmatrix3/Matrix-io/master/Ruleset/Egern/Unbreak.yaml
     policy: DIRECT
     update_interval: 86400
     disabled: false
-# 2. 广告拦截（更新频率调整为 12 小时，广告规则变动较快）
+# 2. 广告拦截（更新频率 12 小时）
 - rule_set:
-    name: AdBlock  # 广告域名拦截
+    name: AdBlock
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/Advertising/Advertising.list
     policy: REJECT
     update_interval: 43200
     disabled: false
 # 3. 按 App/平台分流
 - rule_set:
-    name: AI  # AI 服务域名匹配（ChatGPT、Claude、Gemini 等），命中后走 AI 策略组
+    name: AI
     match: https://github.com/Repcz/Tool/raw/X/Egern/Rules/AI.yaml
     policy: AI
     update_interval: 43200
     disabled: false
 - domain_suffix:
-    name: GoogleVoice-Manual  # 手动补充的 Google Voice 相关域名，优先于下方规则集命中
+    name: GoogleVoice-Manual             # 手动补充的 Google Voice 相关域名
     match: telephony.goog
     policy: UnitedStates
     disabled: false
@@ -384,82 +379,81 @@ rules:
 - domain_suffix:
     match: voice.google.com
     policy: UnitedStates
-    disabled: false    
+    disabled: false
 - rule_set:
-    name: GoogleVoice  # Google Voice 规则集兜底，覆盖手动列表之外的相关域名
+    name: GoogleVoice                    # Google Voice 规则集兜底
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Surge/GoogleVoice/GoogleVoice.list
     policy: UnitedStates
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: Spotify  # Spotify 域名匹配，命中后走 Spotify 策略组
+    name: Spotify
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/Spotify/Spotify.list
     policy: Spotify
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: TikTok  # TikTok 域名匹配，命中后走 TikTok 策略组
+    name: TikTok
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/TikTok/TikTok.list
     policy: TikTok
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: Emby  # Emby 域名匹配，命中后走 Emby 策略组
+    name: Emby
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/Emby/Emby.list
     policy: Emby
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: BiliBili  # 哔哩哔哩域名匹配，命中后走 BiliBili 策略组
+    name: BiliBili
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/BiliBili/BiliBili.list
     policy: BiliBili
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: ChinaMedia  # 国内流媒体域名匹配
+    name: ChinaMedia
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/ChinaMedia/ChinaMedia.list
     policy: ChinaMedia
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: GlobalMedia  # 国外流媒体域名匹配
+    name: GlobalMedia
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/GlobalMedia/GlobalMedia.list
     policy: GlobalMedia
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: GlobalSites  # 常见需代理访问的国外网站合集
+    name: GlobalSites
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/Proxy/Proxy.list
     policy: GlobalSites
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: Apple  # Apple 服务域名匹配
+    name: Apple
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/Apple/Apple.list
     policy: Apple
     update_interval: 86400
     disabled: false
 # 4. 局域网 / 国内网站直连
 - rule_set:
-    name: LAN  # 局域网地址直连
+    name: LAN
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/Lan/Lan.list
     policy: DIRECT
     update_interval: 86400
     disabled: false
 - rule_set:
-    name: ChinaSites  # 国内网站域名直连
+    name: ChinaSites
     match: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Surge/China/China.list
     policy: DIRECT
     update_interval: 86400
     disabled: false
-# 5. GeoIP 兜底：国内 IP 直连（简化：去掉了重复的 "非 CN -> GlobalSites"，
-#    非国内 IP 直接落到下面第 6 条 default(Final)，逻辑更简洁，效果一致）
+# 5. GeoIP 兜底：国内 IP 直连
 - geoip:
     match: CN
     policy: DIRECT
 # 6. 最终兜底
 - default:
-    name: Final  # 兜底规则，未命中以上任何规则的流量走这里
+    name: Final
     policy: Final
 
 # ============================================================
