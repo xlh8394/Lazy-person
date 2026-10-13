@@ -298,6 +298,7 @@
         "🇭🇰 HongKong",
         "🇹🇼 Taiwan",
         "🇯🇵 Japan",
+        "🇰🇷 Korea",
         "🇸🇬 Singapore",
         "🇺🇸 United States",
         "⚡ Auto",
@@ -315,6 +316,7 @@
         "🇭🇰 HongKong",
         "🇹🇼 Taiwan",
         "🇯🇵 Japan",
+        "🇰🇷 Korea",
         "🇸🇬 Singapore",
         "🇺🇸 United States"
       ],
@@ -329,6 +331,7 @@
         "🇭🇰 HongKong",
         "🇹🇼 Taiwan",
         "🇯🇵 Japan",
+        "🇰🇷 Korea",
         "🇸🇬 Singapore",
         "🇺🇸 United States"
       ],
@@ -343,6 +346,7 @@
         "🇭🇰 HongKong",
         "🇹🇼 Taiwan",
         "🇯🇵 Japan",
+        "🇰🇷 Korea",
         "🇸🇬 Singapore",
         "🇺🇸 United States",
         "🎯 Direct"
@@ -358,6 +362,7 @@
         "🇭🇰 HongKong",
         "🇹🇼 Taiwan",
         "🇯🇵 Japan",
+        "🇰🇷 Korea",
         "🇸🇬 Singapore",
         "🇺🇸 United States"
       ],
@@ -371,6 +376,7 @@
         "🚀 Proxy",
         "🇹🇼 Taiwan",
         "🇯🇵 Japan",
+        "🇰🇷 Korea",
         "🇸🇬 Singapore",
         "🇺🇸 United States"
       ],
@@ -385,6 +391,7 @@
         "🇭🇰 HongKong",
         "🇹🇼 Taiwan",
         "🇯🇵 Japan",
+        "🇰🇷 Korea",
         "🇸🇬 Singapore",
         "🇺🇸 United States"
       ],
@@ -399,6 +406,7 @@
         "🇭🇰 HongKong",
         "🇹🇼 Taiwan",
         "🇯🇵 Japan",
+        "🇰🇷 Korea",
         "🇸🇬 Singapore",
         "🇺🇸 United States",
         "🎯 Direct"
@@ -413,6 +421,7 @@
         "🇭🇰 HongKong",
         "🇹🇼 Taiwan",
         "🇯🇵 Japan",
+        "🇰🇷 Korea",
         "🇸🇬 Singapore",
         "🇺🇸 United States",
         "🎯 Direct"
@@ -428,6 +437,7 @@
         "🇭🇰 HongKong",
         "🇹🇼 Taiwan",
         "🇯🇵 Japan",
+        "🇰🇷 Korea",
         "🇸🇬 Singapore",
         "🇺🇸 United States",
         "🎯 Direct"
@@ -443,6 +453,7 @@
         "🇭🇰 HongKong",
         "🇹🇼 Taiwan",
         "🇯🇵 Japan",
+        "🇰🇷 Korea",
         "🇸🇬 Singapore",
         "🇺🇸 United States"
       ],
@@ -461,33 +472,51 @@
     },
     {
       "tag": "🇭🇰 HongKong",
-      "type": "selector",
+      "type": "urltest",
       "outbounds": [],
-      "interrupt_exist_connections": true
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": "10m",
+      "tolerance": 50
     },
     {
       "tag": "🇹🇼 Taiwan",
-      "type": "selector",
+      "type": "urltest",
       "outbounds": [],
-      "interrupt_exist_connections": true
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": "10m",
+      "tolerance": 50
     },
     {
       "tag": "🇯🇵 Japan",
-      "type": "selector",
+      "type": "urltest",
       "outbounds": [],
-      "interrupt_exist_connections": true
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": "10m",
+      "tolerance": 50
+    },
+    {
+      "tag": "🇰🇷 Korea",
+      "type": "urltest",
+      "outbounds": [],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": "10m",
+      "tolerance": 50
     },
     {
       "tag": "🇸🇬 Singapore",
-      "type": "selector",
+      "type": "urltest",
       "outbounds": [],
-      "interrupt_exist_connections": true
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": "10m",
+      "tolerance": 50
     },
     {
       "tag": "🇺🇸 United States",
-      "type": "selector",
+      "type": "urltest",
       "outbounds": [],
-      "interrupt_exist_connections": true
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": "10m",
+      "tolerance": 50
     },
     {
       "tag": "🌐 Others",
