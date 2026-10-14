@@ -355,6 +355,22 @@
       "interrupt_exist_connections": true
     },
     {
+      "tag": "🍎 Apple",
+      "type": "selector",
+      "outbounds": [
+        "🚀 Proxy",
+        "🇭🇰 HongKong",
+        "🇹🇼 Taiwan",
+        "🇯🇵 Japan",
+        "🇰🇷 Korea",
+        "🇸🇬 Singapore",
+        "🇺🇸 United States",
+        "🎯 Direct"
+      ],
+      "default": "🎯 Direct",
+      "interrupt_exist_connections": true
+    },
+    {
       "tag": "📱 Social",
       "type": "selector",
       "outbounds": [
@@ -563,10 +579,11 @@
       },
       {
         "rule_set": [
-          "AppleCN"
+          "AppleCN",
+          "AppleProxy"
         ],
         "action": "route",
-        "outbound": "🎯 Direct"
+        "outbound": "🍎 Apple"
       },
       {
         "type": "logical",
@@ -690,13 +707,6 @@
       {
         "rule_set": [
           "Proxy"
-        ],
-        "action": "route",
-        "outbound": "🚀 Proxy"
-      },
-      {
-        "rule_set": [
-          "AppleProxy"
         ],
         "action": "route",
         "outbound": "🚀 Proxy"
