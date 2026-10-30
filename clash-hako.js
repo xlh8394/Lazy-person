@@ -1157,7 +1157,9 @@ function main(config) {
 
   // 不写入 mixed-port / allow-lan / external-controller / tun
   // 这些由 Hako 在 Apple Packet Tunnel 中自行管理
-
+  newConfig.tun = {
+    'loopback-address': ['10.7.0.1', '10.7.1.1']
+  };
   newConfig['proxies'] = [...customProxies, ...mappedProxies];
   newConfig['proxy-groups'] = [
     globalGroup,
