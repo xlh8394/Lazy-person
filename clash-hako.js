@@ -1137,7 +1137,7 @@ function main(config) {
   // 常规设置（对齐官方最小模板）
   newConfig['dns'] = dns;
   newConfig['hosts'] = hosts;
-  newConfig['ipv6'] = true;
+  newConfig['ipv6'] = false;               // 配合回环地址时更稳（官方建议有IPv6网络时关闭）
   newConfig['mode'] = 'rule';
   newConfig['log-level'] = 'warning';          // 官方日常推荐
   newConfig['unified-delay'] = true;
